@@ -65,6 +65,10 @@
         <button id="mediumBtn" class="bg-orange-500 text-white px-4 py-2 rounded">Medium</button>
         <button id="hardBtn" class="bg-purple-500 text-white px-4 py-2 rounded">Hard</button>
     </div>
+    <div class="mt-4">
+        <button id="darkModeBtn" class="bg-gray-700 text-white px-4 py-2 rounded">Dark Mode</button>
+        <button id="lightModeBtn" class="bg-gray-300 text-black px-4 py-2 rounded">Light Mode</button>
+    </div>
     <footer class="mt-auto text-gray-500">
         <p>&copy; 2024 Tic-Tac-Toe Game. All rights reserved.</p>
     </footer>
@@ -79,6 +83,8 @@
         const easyBtn = document.getElementById('easyBtn');
         const mediumBtn = document.getElementById('mediumBtn');
         const hardBtn = document.getElementById('hardBtn');
+        const darkModeBtn = document.getElementById('darkModeBtn');
+        const lightModeBtn = document.getElementById('lightModeBtn');
 
         let board = Array.from({
             length: 9
@@ -309,6 +315,17 @@
             isPlayerVsComputer = false;
             playerVsComputerBtn.classList.remove('active-mode');
             playerVsPlayerBtn.classList.add('active-mode');
+        });
+
+        // Add theme selection event listeners
+        darkModeBtn.addEventListener('click', () => {
+            document.body.classList.add('bg-gray-900', 'text-white');
+            document.body.classList.remove('bg-white', 'text-black');
+        });
+
+        lightModeBtn.addEventListener('click', () => {
+            document.body.classList.add('bg-white', 'text-black');
+            document.body.classList.remove('bg-gray-900', 'text-white');
         });
 
         // Initial display
