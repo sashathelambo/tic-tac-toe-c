@@ -44,6 +44,10 @@
         .active-mode {
             border: 2px solid #fff;
         }
+        
+        .highlight {
+            background-color: #ffeb3b;
+        }
     </style>
 </head>
 
@@ -169,6 +173,7 @@
                 socket.emit('gameOver', `Player ${currentPlayer} wins!`);
                 addGameHistory(`Player ${currentPlayer} wins!`);
                 playSound('win');
+                highlightWinningCells(currentPlayer);
                 return;
             }
 
@@ -303,6 +308,28 @@
                 audio.src = 'draw-sound.mp3';
             }
             audio.play();
+        }
+
+        // Function to highlight winning cells
+        function highlightWinningCells(marker) {
+            const winPatterns = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8], // rows
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8], // columns
+                [0, 4, 8],
+                [2, 4, 6] // diagonals
+            ];
+
+            winPatterns.forEach(pattern => {
+                if (pattern.every(index => board[index] === marker)) {
+                    pattern.forEach(index => {
+                        boardElement.children[index].classList.add('highlight');
+                    });
+                }
+            });
         }
 
         // Add reset event listener
