@@ -47,39 +47,24 @@
     <h1 class="text-4xl font-bold text-blue-400 mb-4">Welcome to Tic-Tac-Toe!</h1>
     <div class="instructions bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg text-center">
         <h2 class="text-2xl font-semibold text-blue-400 mb-4">Instructions</h2>
-        <p class="mb-4">This is a console-based Tic-Tac-Toe game written in C++. Follow the instructions below to play the game:</p>
-        <ol class="list-decimal list-inside mb-4 text-gray-300">
-            <li>Clone the repository from GitHub: <a href="https://github.com/sashathelambo/tic-tac-toe-c" class="text-blue-400 underline">https://github.com/sashathelambo/tic-tac-toe-c</a></li>
-            <li>Navigate to the directory containing the game files.</li>
-            <li>Open a terminal or command prompt.</li>
-            <li>Compile the source code using a C++ compiler (e.g., <code class="bg-gray-700 p-1 rounded">g++ main.cpp -o main.exe</code>).</li>
-            <li>Run the executable file <code class="bg-gray-700 p-1 rounded">main.exe</code> to start the game.</li>
-            <li>Follow the on-screen instructions to play against another player or the computer.</li>
-            <li>Press <strong>ESC</strong> at any time to exit the game or <strong>M</strong> to return to the menu.</li>
-        </ol>
-        <h2 class="text-2xl font-semibold text-blue-400 mb-4">Game Features</h2>
-        <ul class="list-disc list-inside text-gray-300">
-            <li>Play against another player or the computer.</li>
-            <li>Color-coded console output for better visibility.</li>
-            <li>Simple and intuitive controls.</li>
-        </ul>
+        <p class="mb-4">This is a web-based Tic-Tac-Toe game. Click on a cell to make a move. The first player to align three of their marks in a row, column, or diagonal wins!</p>
     </div>
-    <div id="output" class="bg-gray-800 p-4 rounded-lg shadow-lg mt-4 max-w-lg text-left text-gray-300"></div>
+    <div class="board"></div>
+    <div id="message" class="text-xl mt-4"></div>
+    <button id="resetBtn" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Reset Game</button>
     <footer class="mt-auto text-gray-500">
         <p>&copy; 2024 Tic-Tac-Toe Game. All rights reserved.</p>
     </footer>
+
     <script>
         const boardElement = document.querySelector('.board');
-        const messageElement = document.querySelector('.message');
+        const messageElement = document.getElementById('message');
         const resetBtn = document.getElementById('resetBtn');
 
         let board = Array.from({
             length: 9
         }, (_, i) => (i + 1).toString());
         let currentPlayer = 'X';
-        let isComputerOpponent = false;
-        let exitFlag = false;
-        let returnToMenuFlag = false;
 
         // Function to display the Tic-Tac-Toe board
         function displayBoard() {
@@ -88,7 +73,7 @@
                 const cellElement = document.createElement('div');
                 cellElement.classList.add('cell');
                 cellElement.textContent = cell;
-                cellElement.addEventListener('click', () => handlePlayerInput(index + 1));
+                cellElement.addEventListener('click', () => handlePlayerInput(index));
                 boardElement.appendChild(cellElement);
             });
         }
@@ -127,53 +112,26 @@
         }
 
         // Function to handle player input
-        function handlePlayerInput(pos) {
-            if (board[pos - 1] === 'X' || board[pos - 1] === 'O') {
+        function handlePlayerInput(index) {
+            if (board[index] === 'X' || board[index] === 'O') {
                 messageElement.textContent = 'Cell already taken. Please choose another position.';
-                messageElement.className = 'error';
                 return;
             }
 
-            board[pos - 1] = currentPlayer;
+            board[index] = currentPlayer;
             displayBoard();
 
             if (checkWin(currentPlayer)) {
                 messageElement.textContent = `Player ${currentPlayer} wins!`;
-                messageElement.className = 'win';
                 return;
             }
 
             if (isDraw()) {
                 messageElement.textContent = "It's a draw!";
-                messageElement.className = 'draw';
                 return;
             }
 
             currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-            if (isComputerOpponent && currentPlayer === 'O') {
-                handleComputerInput();
-            }
-        }
-
-        // Function to handle computer input
-        function handleComputerInput() {
-            let pos;
-            do {
-                pos = Math.floor(Math.random() * 9) + 1;
-            } while (board[pos - 1] === 'X' || board[pos - 1] === 'O');
-
-            board[pos - 1] = 'O';
-            displayBoard();
-
-            if (checkWin('O')) {
-                messageElement.textContent = 'Player O (Computer) wins!';
-                messageElement.className = 'win';
-            } else if (isDraw()) {
-                messageElement.textContent = "It's a draw!";
-                messageElement.className = 'draw';
-            } else {
-                currentPlayer = 'X';
-            }
         }
 
         // Add reset event listener
@@ -182,7 +140,6 @@
         // Initial display
         displayBoard();
     </script>
-
 </body>
 
 </html>
