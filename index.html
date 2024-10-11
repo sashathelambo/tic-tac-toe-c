@@ -94,8 +94,9 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <script src="./gameLogic.js"></script>
     <script>
-        import {
+        const {
             displayBoard,
             checkWin,
             isDraw,
@@ -108,7 +109,7 @@
             addGameHistory,
             playSound,
             highlightWinningCells
-        } from './gameLogic.js';
+        } = gameLogic;
 
         const boardElement = document.querySelector('.board');
         const messageElement = document.getElementById('message');
@@ -227,15 +228,17 @@
         }
 
         // Testing functions
-        import {
+        const {
             testCheckWin,
             testIsDraw
-        } from './testLogic.js';
+        } = testLogic;
 
         // Run tests
         testCheckWin();
         testIsDraw();
     </script>
 </body>
+
+</html>
 
 </html>
