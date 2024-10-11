@@ -5,35 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tic-Tac-Toe Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            text-align: center;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-        
-        h1 {
-            color: #4CAF50;
-        }
-        
-        .instructions {
-            margin: 20px auto;
-            max-width: 600px;
-            text-align: center;
-        }
-        
-        .instructions p {
-            line-height: 1.6;
-        }
-        
         .board {
             display: grid;
             grid-template-columns: repeat(3, 100px);
@@ -48,49 +21,56 @@
             justify-content: center;
             align-items: center;
             font-size: 2em;
-            background-color: #fff;
-            border: 1px solid #ccc;
+            background-color: #61dafb;
+            border: 2px solid #20232a;
+            border-radius: 10px;
             cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        
+        .cell:hover {
+            background-color: #21a1f1;
+            transform: scale(1.1);
         }
         
         .cell.x {
-            color: red;
+            color: #ff6b6b;
         }
         
         .cell.o {
-            color: blue;
-        }
-        
-        footer {
-            margin-top: auto;
+            color: #4db6ac;
         }
     </style>
 </head>
 
-<body>
-    <h1>Welcome to Tic-Tac-Toe!</h1>
-    <div class="instructions">
-        <h2>Instructions</h2>
-        <p>This is a console-based Tic-Tac-Toe game written in C++. Follow the instructions below to play the game:</p>
-        <ol>
+<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen p-4">
+    <h1 class="text-4xl font-bold text-blue-400 mb-4">Welcome to Tic-Tac-Toe!</h1>
+    <div class="instructions bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg text-center">
+        <h2 class="text-2xl font-semibold text-blue-400 mb-4">Instructions</h2>
+        <p class="mb-4">This is a console-based Tic-Tac-Toe game written in C++. Follow the instructions below to play the game:</p>
+        <ol class="list-decimal list-inside mb-4 text-gray-300">
             <li>Download and extract the game files.</li>
             <li>Open a terminal or command prompt.</li>
             <li>Navigate to the directory containing the game files.</li>
             <li>Compile the source code using a C++ compiler (e.g., g++ main.cpp -o main.exe).</li>
-            <li>Run the executable file <code>main.exe</code> to start the game.</li>
+            <li>Run the executable file <code class="bg-gray-700 p-1 rounded">main.exe</code> to start the game.</li>
             <li>Follow the on-screen instructions to play against another player or the computer.</li>
             <li>Press <strong>ESC</strong> at any time to exit the game or <strong>M</strong> to return to the menu.</li>
         </ol>
-        <h2>Game Features</h2>
-        <ul>
+        <h2 class="text-2xl font-semibold text-blue-400 mb-4">Game Features</h2>
+        <ul class="list-disc list-inside text-gray-300">
             <li>Play against another player or the computer.</li>
             <li>Color-coded console output for better visibility.</li>
             <li>Simple and intuitive controls.</li>
         </ul>
     </div>
-    <footer>
+    <footer class="mt-auto text-gray-500">
         <p>&copy; 2024 Tic-Tac-Toe Game. All rights reserved.</p>
     </footer>
 </body>
+
+</html>
+
+</html>
 
 </html>
