@@ -134,6 +134,10 @@
             });
         }
 
+        function isCellOccupied(index) {
+            return board[index] === 'X' || board[index] === 'O';
+        }
+
         function checkWin(board) {
             const winPatterns = [
                 [0, 1, 2],
@@ -175,7 +179,7 @@
         }
 
         function handleClick(index) {
-            if (board[index] !== 'X' && board[index] !== 'O' && !checkWin(board)) {
+            if (!isCellOccupied(index) && !checkWin(board)) {
                 board[index] = currentPlayer;
                 displayBoard(board);
                 socket.emit('playerMove', {
@@ -251,12 +255,18 @@
         }
 
         function getRandomAvailableMove() {
-            const availableMoves = board.filter(cell => cell !== 'X' && cell !== 'O');
-            return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+            const availableMoves = board
+                .map((cell, index) => (!isCellOccupied(index) ? index : null))
+                .filter(index => index !== null);
+            const randomIndex = Math.floor(Math.random() * availableMoves.length);
+            return availableMoves[randomIndex];
         }
 
         function getMediumDifficultyMove() {
-            const availableMoves = board.map((cell, index) => cell !== 'X' && cell !== 'O' ? index : null).filter(index => index !== null);
+            const availableMoves = board
+                .map((cell, index) => (!isCellOccupied(index) ? index : null))
+                .filter(index => index !== null);
+
             const winningMove = availableMoves.find(index => {
                 const tempBoard = [...board];
                 tempBoard[index] = currentPlayer;
@@ -278,7 +288,9 @@
         }
 
         function getMinimaxMove(board, player) {
-            const availableMoves = board.map((cell, index) => cell !== 'X' && cell !== 'O' ? index : null).filter(index => index !== null);
+            const availableMoves = board
+                .map((cell, index) => (!isCellOccupied(index) ? index : null))
+                .filter(index => index !== null);
 
             let bestScore = -Infinity;
             let bestMove;
@@ -309,7 +321,9 @@
                 return 0;
             }
 
-            const availableMoves = board.map((cell, index) => cell !== 'X' && cell !== 'O' ? index : null).filter(index => index !== null);
+            const availableMoves = board
+                .map((cell, index) => (!isCellOccupied(index) ? index : null))
+                .filter(index => index !== null);
 
             if (isMaximizing) {
                 let bestScore = -Infinity;
