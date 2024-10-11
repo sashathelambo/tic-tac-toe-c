@@ -48,6 +48,18 @@
         .highlight {
             background-color: #ffeb3b;
         }
+        
+        @media (max-width: 600px) {
+            .board {
+                grid-template-columns: repeat(3, 80px);
+                grid-gap: 5px;
+            }
+            .cell {
+                width: 80px;
+                height: 80px;
+                font-size: 1.5em;
+            }
+        }
     </style>
 </head>
 
@@ -83,6 +95,21 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
     <script>
+        import {
+            displayBoard,
+            checkWin,
+            isDraw,
+            resetBoard,
+            handlePlayerInput,
+            handleComputerMove,
+            findBestMoveMedium,
+            findBestMove,
+            minimax,
+            addGameHistory,
+            playSound,
+            highlightWinningCells
+        } from './gameLogic.js';
+
         const boardElement = document.querySelector('.board');
         const messageElement = document.getElementById('message');
         const resetBtn = document.getElementById('resetBtn');
@@ -103,234 +130,6 @@
         let difficulty = 'medium';
         let socket = io();
         let gameHistory = [];
-
-        // Function to display the Tic-Tac-Toe board
-        function displayBoard() {
-            boardElement.innerHTML = '';
-            board.forEach((cell, index) => {
-                const cellElement = document.createElement('div');
-                cellElement.classList.add('cell');
-                cellElement.textContent = cell;
-                cellElement.tabIndex = 0;
-                cellElement.setAttribute('role', 'button');
-                cellElement.setAttribute('aria-label', `Cell ${index + 1}`);
-                cellElement.addEventListener('click', () => handlePlayerInput(index));
-                cellElement.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        handlePlayerInput(index);
-                    }
-                });
-                boardElement.appendChild(cellElement);
-            });
-        }
-
-        // Function to check if a player has won
-        function checkWin(marker) {
-            const winPatterns = [
-                [0, 1, 2],
-                [3, 4, 5],
-                [6, 7, 8], // rows
-                [0, 3, 6],
-                [1, 4, 7],
-                [2, 5, 8], // columns
-                [0, 4, 8],
-                [2, 4, 6] // diagonals
-            ];
-
-            return winPatterns.some(pattern =>
-                pattern.every(index => board[index] === marker)
-            );
-        }
-
-        // Function to check if the game is a draw
-        function isDraw() {
-            return board.every(cell => cell === 'X' || cell === 'O');
-        }
-
-        // Function to reset the board
-        function resetBoard() {
-            board = Array.from({
-                length: 9
-            }, (_, i) => (i + 1).toString());
-            currentPlayer = 'X';
-            messageElement.textContent = '';
-            displayBoard();
-            socket.emit('resetBoard');
-        }
-
-        // Function to handle player input
-        function handlePlayerInput(index) {
-            if (board[index] === 'X' || board[index] === 'O') {
-                messageElement.textContent = 'Cell already taken. Please choose another position.';
-                return;
-            }
-
-            board[index] = currentPlayer;
-            displayBoard();
-
-            if (checkWin(currentPlayer)) {
-                messageElement.textContent = `Player ${currentPlayer} wins!`;
-                socket.emit('gameOver', `Player ${currentPlayer} wins!`);
-                addGameHistory(`Player ${currentPlayer} wins!`);
-                playSound('win');
-                highlightWinningCells(currentPlayer);
-                return;
-            }
-
-            if (isDraw()) {
-                messageElement.textContent = "It's a draw!";
-                socket.emit('gameOver', "It's a draw!");
-                addGameHistory("It's a draw!");
-                playSound('draw');
-                return;
-            }
-
-            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-            socket.emit('playerMove', {
-                board,
-                currentPlayer
-            });
-
-            if (isPlayerVsComputer && currentPlayer === 'O') {
-                handleComputerMove();
-            }
-        }
-
-        // Function to handle computer move
-        function handleComputerMove() {
-            const availableCells = board.map((cell, index) => cell === 'X' || cell === 'O' ? null : index).filter(index => index !== null);
-            let bestMove;
-            if (difficulty === 'easy') {
-                bestMove = availableCells[Math.floor(Math.random() * availableCells.length)];
-            } else if (difficulty === 'medium') {
-                bestMove = findBestMoveMedium();
-            } else {
-                bestMove = findBestMove();
-            }
-            handlePlayerInput(bestMove);
-        }
-
-        // Function to find the best move for the computer (medium difficulty)
-        function findBestMoveMedium() {
-            // Simple AI that blocks the player from winning
-            for (let i = 0; i < board.length; i++) {
-                if (board[i] !== 'X' && board[i] !== 'O') {
-                    let temp = board[i];
-                    board[i] = 'O';
-                    if (checkWin('O')) {
-                        board[i] = temp;
-                        return i;
-                    }
-                    board[i] = 'X';
-                    if (checkWin('X')) {
-                        board[i] = temp;
-                        return i;
-                    }
-                    board[i] = temp;
-                }
-            }
-            const availableCells = board.map((cell, index) => cell === 'X' || cell === 'O' ? null : index).filter(index => index !== null);
-            return availableCells[Math.floor(Math.random() * availableCells.length)];
-        }
-
-        // Function to find the best move for the computer (hard difficulty)
-        function findBestMove() {
-            let bestScore = -Infinity;
-            let move;
-            for (let i = 0; i < board.length; i++) {
-                if (board[i] !== 'X' && board[i] !== 'O') {
-                    let temp = board[i];
-                    board[i] = 'O';
-                    let score = minimax(board, 0, false);
-                    board[i] = temp;
-                    if (score > bestScore) {
-                        bestScore = score;
-                        move = i;
-                    }
-                }
-            }
-            return move;
-        }
-
-        // Minimax algorithm
-        function minimax(board, depth, isMaximizing) {
-            if (checkWin('O')) {
-                return 10 - depth;
-            }
-            if (checkWin('X')) {
-                return depth - 10;
-            }
-            if (isDraw()) {
-                return 0;
-            }
-
-            if (isMaximizing) {
-                let bestScore = -Infinity;
-                for (let i = 0; i < board.length; i++) {
-                    if (board[i] !== 'X' && board[i] !== 'O') {
-                        let temp = board[i];
-                        board[i] = 'O';
-                        let score = minimax(board, depth + 1, false);
-                        board[i] = temp;
-                        bestScore = Math.max(score, bestScore);
-                    }
-                }
-                return bestScore;
-            } else {
-                let bestScore = Infinity;
-                for (let i = 0; i < board.length; i++) {
-                    if (board[i] !== 'X' && board[i] !== 'O') {
-                        let temp = board[i];
-                        board[i] = 'X';
-                        let score = minimax(board, depth + 1, true);
-                        board[i] = temp;
-                        bestScore = Math.min(score, bestScore);
-                    }
-                }
-                return bestScore;
-            }
-        }
-
-        // Function to add game history
-        function addGameHistory(result) {
-            const historyItem = document.createElement('li');
-            historyItem.textContent = result;
-            gameHistoryElement.appendChild(historyItem);
-            gameHistory.push(result);
-        }
-
-        // Function to play sound effects
-        function playSound(type) {
-            const audio = new Audio();
-            if (type === 'win') {
-                audio.src = 'win-sound.mp3';
-            } else if (type === 'draw') {
-                audio.src = 'draw-sound.mp3';
-            }
-            audio.play();
-        }
-
-        // Function to highlight winning cells
-        function highlightWinningCells(marker) {
-            const winPatterns = [
-                [0, 1, 2],
-                [3, 4, 5],
-                [6, 7, 8], // rows
-                [0, 3, 6],
-                [1, 4, 7],
-                [2, 5, 8], // columns
-                [0, 4, 8],
-                [2, 4, 6] // diagonals
-            ];
-
-            winPatterns.forEach(pattern => {
-                if (pattern.every(index => board[index] === marker)) {
-                    pattern.forEach(index => {
-                        boardElement.children[index].classList.add('highlight');
-                    });
-                }
-            });
-        }
 
         // Add reset event listener
         resetBtn.addEventListener('click', resetBoard);
@@ -411,37 +210,27 @@
 
         socket.on('gameOver', (message) => {
             messageElement.textContent = message;
+            playSound('gameOver');
         });
 
-        // Testing functions
-        function testCheckWin() {
-            console.assert(checkWin('X') === false, 'Test Case 1 Failed');
-            board = ['X', 'X', 'X', '4', '5', '6', '7', '8', '9'];
-            console.assert(checkWin('X') === true, 'Test Case 2 Failed');
-            board = ['1', '2', '3', 'X', 'X', 'X', '7', '8', '9'];
-            console.assert(checkWin('X') === true, 'Test Case 3 Failed');
-            board = ['1', '2', '3', '4', '5', '6', 'X', 'X', 'X'];
-            console.assert(checkWin('X') === true, 'Test Case 4 Failed');
-            board = ['X', '2', '3', 'X', '5', '6', 'X', '8', '9'];
-            console.assert(checkWin('X') === true, 'Test Case 5 Failed');
-            board = ['1', 'X', '3', '4', 'X', '6', '7', 'X', '9'];
-            console.assert(checkWin('X') === true, 'Test Case 6 Failed');
-            board = ['1', '2', 'X', '4', '5', 'X', '7', '8', 'X'];
-            console.assert(checkWin('X') === true, 'Test Case 7 Failed');
-            board = ['X', '2', '3', '4', 'X', '6', '7', '8', 'X'];
-            console.assert(checkWin('X') === true, 'Test Case 8 Failed');
-            board = ['1', '2', 'X', '4', 'X', '6', 'X', '8', '9'];
-            console.assert(checkWin('X') === true, 'Test Case 9 Failed');
-            console.log('All test cases for checkWin passed');
+        // Highlight winning cells
+        function highlightWinningCells(cells) {
+            cells.forEach(index => {
+                document.querySelector(`.cell:nth-child(${index + 1})`).classList.add('highlight');
+            });
         }
 
-        function testIsDraw() {
-            board = ['X', 'O', 'X', 'O', 'X', 'O', 'O', 'X', 'O'];
-            console.assert(isDraw() === true, 'Test Case 1 Failed');
-            board = ['X', 'O', 'X', 'O', 'X', 'O', 'O', 'X', '9'];
-            console.assert(isDraw() === false, 'Test Case 2 Failed');
-            console.log('All test cases for isDraw passed');
+        // Play sound effects
+        function playSound(effect) {
+            const audio = new Audio(`./sounds/${effect}.mp3`);
+            audio.play();
         }
+
+        // Testing functions
+        import {
+            testCheckWin,
+            testIsDraw
+        } from './testLogic.js';
 
         // Run tests
         testCheckWin();
