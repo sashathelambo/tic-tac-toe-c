@@ -53,8 +53,8 @@
         <h2 class="text-2xl font-semibold text-blue-400 mb-4">Instructions</h2>
         <p class="mb-4">This is a web-based Tic-Tac-Toe game. Click on a cell to make a move. The first player to align three of their marks in a row, column, or diagonal wins!</p>
     </div>
-    <div class="board"></div>
-    <div id="message" class="text-xl mt-4"></div>
+    <div class="board" role="grid" aria-label="Tic-Tac-Toe Board"></div>
+    <div id="message" class="text-xl mt-4" aria-live="polite"></div>
     <button id="resetBtn" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Reset Game</button>
     <div class="mt-4">
         <button id="playerVsPlayerBtn" class="bg-green-500 text-white px-4 py-2 rounded">Player vs Player</button>
@@ -68,6 +68,10 @@
     <div class="mt-4">
         <button id="darkModeBtn" class="bg-gray-700 text-white px-4 py-2 rounded">Dark Mode</button>
         <button id="lightModeBtn" class="bg-gray-300 text-black px-4 py-2 rounded">Light Mode</button>
+    </div>
+    <div class="mt-4">
+        <h2 class="text-2xl font-semibold text-blue-400 mb-4">Game History</h2>
+        <ul id="gameHistory" class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg text-center"></ul>
     </div>
     <footer class="mt-auto text-gray-500">
         <p>&copy; 2024 Tic-Tac-Toe Game. All rights reserved.</p>
@@ -85,6 +89,7 @@
         const hardBtn = document.getElementById('hardBtn');
         const darkModeBtn = document.getElementById('darkModeBtn');
         const lightModeBtn = document.getElementById('lightModeBtn');
+        const gameHistoryElement = document.getElementById('gameHistory');
 
         let board = Array.from({
             length: 9
@@ -93,6 +98,7 @@
         let isPlayerVsComputer = false;
         let difficulty = 'medium';
         let socket = io();
+        let gameHistory = [];
 
         // Function to display the Tic-Tac-Toe board
         function displayBoard() {
@@ -101,7 +107,15 @@
                 const cellElement = document.createElement('div');
                 cellElement.classList.add('cell');
                 cellElement.textContent = cell;
+                cellElement.tabIndex = 0;
+                cellElement.setAttribute('role', 'button');
+                cellElement.setAttribute('aria-label', `Cell ${index + 1}`);
                 cellElement.addEventListener('click', () => handlePlayerInput(index));
+                cellElement.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        handlePlayerInput(index);
+                    }
+                });
                 boardElement.appendChild(cellElement);
             });
         }
@@ -153,12 +167,16 @@
             if (checkWin(currentPlayer)) {
                 messageElement.textContent = `Player ${currentPlayer} wins!`;
                 socket.emit('gameOver', `Player ${currentPlayer} wins!`);
+                addGameHistory(`Player ${currentPlayer} wins!`);
+                playSound('win');
                 return;
             }
 
             if (isDraw()) {
                 messageElement.textContent = "It's a draw!";
                 socket.emit('gameOver', "It's a draw!");
+                addGameHistory("It's a draw!");
+                playSound('draw');
                 return;
             }
 
@@ -268,6 +286,25 @@
             }
         }
 
+        // Function to add game history
+        function addGameHistory(result) {
+            const historyItem = document.createElement('li');
+            historyItem.textContent = result;
+            gameHistoryElement.appendChild(historyItem);
+            gameHistory.push(result);
+        }
+
+        // Function to play sound effects
+        function playSound(type) {
+            const audio = new Audio();
+            if (type === 'win') {
+                audio.src = 'win-sound.mp3';
+            } else if (type === 'draw') {
+                audio.src = 'draw-sound.mp3';
+            }
+            audio.play();
+        }
+
         // Add reset event listener
         resetBtn.addEventListener('click', resetBoard);
 
@@ -348,6 +385,40 @@
         socket.on('gameOver', (message) => {
             messageElement.textContent = message;
         });
+
+        // Testing functions
+        function testCheckWin() {
+            console.assert(checkWin('X') === false, 'Test Case 1 Failed');
+            board = ['X', 'X', 'X', '4', '5', '6', '7', '8', '9'];
+            console.assert(checkWin('X') === true, 'Test Case 2 Failed');
+            board = ['1', '2', '3', 'X', 'X', 'X', '7', '8', '9'];
+            console.assert(checkWin('X') === true, 'Test Case 3 Failed');
+            board = ['1', '2', '3', '4', '5', '6', 'X', 'X', 'X'];
+            console.assert(checkWin('X') === true, 'Test Case 4 Failed');
+            board = ['X', '2', '3', 'X', '5', '6', 'X', '8', '9'];
+            console.assert(checkWin('X') === true, 'Test Case 5 Failed');
+            board = ['1', 'X', '3', '4', 'X', '6', '7', 'X', '9'];
+            console.assert(checkWin('X') === true, 'Test Case 6 Failed');
+            board = ['1', '2', 'X', '4', '5', 'X', '7', '8', 'X'];
+            console.assert(checkWin('X') === true, 'Test Case 7 Failed');
+            board = ['X', '2', '3', '4', 'X', '6', '7', '8', 'X'];
+            console.assert(checkWin('X') === true, 'Test Case 8 Failed');
+            board = ['1', '2', 'X', '4', 'X', '6', 'X', '8', '9'];
+            console.assert(checkWin('X') === true, 'Test Case 9 Failed');
+            console.log('All test cases for checkWin passed');
+        }
+
+        function testIsDraw() {
+            board = ['X', 'O', 'X', 'O', 'X', 'O', 'O', 'X', 'O'];
+            console.assert(isDraw() === true, 'Test Case 1 Failed');
+            board = ['X', 'O', 'X', 'O', 'X', 'O', 'O', 'X', '9'];
+            console.assert(isDraw() === false, 'Test Case 2 Failed');
+            console.log('All test cases for isDraw passed');
+        }
+
+        // Run tests
+        testCheckWin();
+        testIsDraw();
     </script>
 </body>
 
