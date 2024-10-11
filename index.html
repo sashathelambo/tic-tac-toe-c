@@ -275,15 +275,17 @@
         socket.on('gameOver', (data) => {
             messageElement.textContent = data.message;
         });
+
+        // Handle lobby creation
+        createLobbyBtn.addEventListener('click', () => {
+            socket.emit('createLobby', {}, (response) => {
+                lobbyId = response.lobbyId;
+                lobbyIdElement.textContent = `Lobby ID: ${lobbyId}`;
+                menu.classList.add('hidden');
+                lobby.classList.remove('hidden');
+            });
+        });
     </script>
-</body>
-
-</html>
-
-// Toggle dark mode toggleDarkMode.addEventListener('click', () => { document.body.classList.toggle('bg-gray-900'); document.body.classList.toggle('bg-white'); document.body.classList.toggle('text-black'); }); // Additional socket handlers for game state
-synchronization, lobby creation, etc. socket.on('connect', () => { console.log('Connected to server.'); }); socket.on('updateBoard', (data) => { board = data.board; currentPlayer = data.currentPlayer; displayBoard(); }); socket.on('gameOver', (data) =>
-{ messageElement.textContent = data.message; });
-</script>
 </body>
 
 </html>
