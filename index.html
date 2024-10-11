@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tic-Tac-Toe Game</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.x.x/dist/tailwind.min.css" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.1.0/dist/full.css" rel="stylesheet" type="text/css" />
     <style>
         .board {
             display: grid;
@@ -22,11 +24,12 @@
             justify-content: center;
             align-items: center;
             font-size: 2em;
-            background-color: #61dafb;
             border: 2px solid #20232a;
             border-radius: 10px;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.3s;
+            background-color: #b6f3f3;
+            user-select: none;
         }
         
         .cell:hover {
@@ -58,41 +61,51 @@
         .active-mode {
             border: 2px solid #fff;
         }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
     </style>
 </head>
 
-<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen p-4">
-    <h1 class="text-4xl font-bold text-blue-400 mb-4">Welcome to Tic-Tac-Toe!</h1>
-    <div class="instructions bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg text-center">
-        <h2 class="text-2xl font-semibold text-blue-400 mb-4">Instructions</h2>
-        <p class="mb-4">This is a web-based Tic-Tac-Toe game. Click on a cell to make a move. The first player to align three of their marks in a row, column, or diagonal wins!</p>
-    </div>
-    <div id="menu" class="mt-4 flex flex-col items-center">
-        <button id="createLobbyBtn" class="bg-green-500 text-white px-4 py-2 rounded mb-2">Create Lobby</button>
-        <button id="joinLobbyBtn" class="bg-blue-500 text-white px-4 py-2 rounded mb-2">Join Lobby</button>
-        <div id="joinLobbySection" class="hidden mt-4 flex flex-col items-center">
-            <input type="text" id="lobbyIdInput" placeholder="Enter Lobby ID" class="p-2 rounded bg-gray-800 text-white mb-2">
-            <button id="confirmJoinLobbyBtn" class="bg-blue-500 text-white px-4 py-2 rounded mb-2">Join Lobby</button>
-            <label class="ml-2 text-sm"><input type="checkbox" id="spectatorMode" class="mr-2">Spectator Mode</label>
+<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen p-4" data-theme="dark">
+    <div id="app" class="container">
+        <h1 class="text-4xl font-bold text-blue-400 mb-4">Welcome to Tic-Tac-Toe!</h1>
+        <div class="instructions bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg text-center">
+            <h2 class="text-2xl font-semibold text-blue-400 mb-4">Instructions</h2>
+            <p class="mb-4">This is a web-based Tic-Tac-Toe game. Click on a cell to make a move. The first player to align three of their marks in a row, column, or diagonal wins!
+            </p>
         </div>
+        <div id="menu" class="mt-4 flex flex-col items-center">
+            <button id="createLobbyBtn" class="btn btn-success mb-2">Create Lobby</button>
+            <button id="joinLobbyBtn" class="btn btn-primary mb-2">Join Lobby</button>
+            <div id="joinLobbySection" class="hidden mt-4 flex flex-col items-center">
+                <input type="text" id="lobbyIdInput" placeholder="Enter Lobby ID" class="input input-bordered w-full max-w-xs mb-2">
+                <button id="confirmJoinLobbyBtn" class="btn btn-primary mb-2">Join Lobby</button>
+                <label class="label cursor-pointer"><input type="checkbox" id="spectatorMode" class="checkbox">Spectator
+                    Mode</label>
+            </div>
+        </div>
+        <div id="lobby" class="hidden mt-4 flex flex-col items-center">
+            <h2 class="text-2xl font-semibold text-blue-400 mb-4">Lobby</h2>
+            <div id="lobbyId" class="text-xl mb-4"></div>
+            <button id="startGameBtn" class="btn btn-error">Start Game</button>
+        </div>
+        <div class="board hidden"></div>
+        <div id="message" class="text-xl mt-4"></div>
+        <button id="resetBtn" class="mt-4 btn btn-primary hidden">Reset Game</button>
+        <div class="mt-4 hidden flex flex-col items-center">
+            <button id="playerVsPlayerBtn" class="btn btn-success mb-2">Player vs Player</button>
+            <button id="playerVsComputerBtn" class="btn btn-error">Player vs Computer</button>
+        </div>
+        <button id="toggleDarkMode" class="mt-4 btn btn-secondary">Toggle Dark Mode</button>
+        <footer class="mt-auto text-gray-500 text-center">
+            <p>&copy; 2024 Tic-Tac-Toe Game. All rights reserved.</p>
+        </footer>
     </div>
-    <div id="lobby" class="hidden mt-4 flex flex-col items-center">
-        <h2 class="text-2xl font-semibold text-blue-400 mb-4">Lobby</h2>
-        <div id="lobbyId" class="text-xl mb-4"></div>
-        <button id="startGameBtn" class="bg-red-500 text-white px-4 py-2 rounded">Start Game</button>
-    </div>
-    <div class="board hidden"></div>
-    <div id="message" class="text-xl mt-4"></div>
-    <button id="resetBtn" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hidden">Reset Game</button>
-    <div class="mt-4 hidden flex flex-col items-center">
-        <button id="playerVsPlayerBtn" class="bg-green-500 text-white px-4 py-2 rounded mb-2">Player vs Player</button>
-        <button id="playerVsComputerBtn" class="bg-red-500 text-white px-4 py-2 rounded">Player vs Computer</button>
-    </div>
-    <button id="toggleDarkMode" class="mt-4 bg-gray-600 text-white px-4 py-2 rounded">Toggle Dark Mode</button>
-    <footer class="mt-auto text-gray-500 text-center">
-        <p>&copy; 2024 Tic-Tac-Toe Game. All rights reserved.</p>
-    </footer>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
     <script>
         const boardElement = document.querySelector('.board');
@@ -263,6 +276,14 @@
             messageElement.textContent = data.message;
         });
     </script>
+</body>
+
+</html>
+
+// Toggle dark mode toggleDarkMode.addEventListener('click', () => { document.body.classList.toggle('bg-gray-900'); document.body.classList.toggle('bg-white'); document.body.classList.toggle('text-black'); }); // Additional socket handlers for game state
+synchronization, lobby creation, etc. socket.on('connect', () => { console.log('Connected to server.'); }); socket.on('updateBoard', (data) => { board = data.board; currentPlayer = data.currentPlayer; displayBoard(); }); socket.on('gameOver', (data) =>
+{ messageElement.textContent = data.message; });
+</script>
 </body>
 
 </html>
