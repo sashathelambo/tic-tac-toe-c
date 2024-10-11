@@ -189,6 +189,7 @@
                     let temp = board[i];
                     board[i] = 'O';
                     if (checkWin('O')) {
+                        board[i] = temp;
                         return i;
                     }
                     board[i] = 'X';
@@ -199,6 +200,7 @@
                     board[i] = temp;
                 }
             }
+            const availableCells = board.map((cell, index) => cell === 'X' || cell === 'O' ? null : index).filter(index => index !== null);
             return availableCells[Math.floor(Math.random() * availableCells.length)];
         }
 
