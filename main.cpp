@@ -277,7 +277,7 @@ void showMenu() {
                 return;
             } else {
                 setColor(12); // Red color for error message
-                cout << "Invalid choice. Please enter 1, 2, or M: ";
+                cout << "Invalid choice. Please enter 1, 2, or M or esc: ";
                 setColor(7); // Reset to default color
             }
         }
