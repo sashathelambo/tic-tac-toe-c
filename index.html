@@ -152,8 +152,66 @@
         // Function to handle computer move
         function handleComputerMove() {
             const availableCells = board.map((cell, index) => cell === 'X' || cell === 'O' ? null : index).filter(index => index !== null);
-            const randomIndex = availableCells[Math.floor(Math.random() * availableCells.length)];
-            handlePlayerInput(randomIndex);
+            const bestMove = findBestMove();
+            handlePlayerInput(bestMove);
+        }
+
+        // Function to find the best move for the computer
+        function findBestMove() {
+            let bestScore = -Infinity;
+            let move;
+            for (let i = 0; i < board.length; i++) {
+                if (board[i] !== 'X' && board[i] !== 'O') {
+                    let temp = board[i];
+                    board[i] = 'O';
+                    let score = minimax(board, 0, false);
+                    board[i] = temp;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        move = i;
+                    }
+                }
+            }
+            return move;
+        }
+
+        // Minimax algorithm
+        function minimax(board, depth, isMaximizing) {
+            if (checkWin('O')) {
+                return 10 - depth;
+            }
+            if (checkWin('X')) {
+                return depth - 10;
+            }
+            if (isDraw()) {
+                return 0;
+            }
+
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < board.length; i++) {
+                    if (board[i] !== 'X' && board[i] !== 'O') {
+                        let temp = board[i];
+                        board[i] = 'O';
+                        let score = minimax(board, depth + 1, false);
+                        board[i] = temp;
+                        bestScore = Math.max(score, bestScore);
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < board.length; i++) {
+                    if (board[i] !== 'X' && board[i] !== 'O') {
+                        let temp = board[i];
+                        board[i] = 'X';
+                        let score = minimax(board, depth + 1, true);
+                        board[i] = temp;
+                        bestScore = Math.min(score, bestScore);
+                    }
+                }
+                return bestScore;
+            }
         }
 
         // Add reset event listener
