@@ -60,6 +60,11 @@
         <button id="playerVsPlayerBtn" class="bg-green-500 text-white px-4 py-2 rounded">Player vs Player</button>
         <button id="playerVsComputerBtn" class="bg-red-500 text-white px-4 py-2 rounded">Player vs Computer</button>
     </div>
+    <div class="mt-4">
+        <button id="easyBtn" class="bg-yellow-500 text-white px-4 py-2 rounded">Easy</button>
+        <button id="mediumBtn" class="bg-orange-500 text-white px-4 py-2 rounded">Medium</button>
+        <button id="hardBtn" class="bg-purple-500 text-white px-4 py-2 rounded">Hard</button>
+    </div>
     <footer class="mt-auto text-gray-500">
         <p>&copy; 2024 Tic-Tac-Toe Game. All rights reserved.</p>
     </footer>
@@ -71,12 +76,16 @@
         const resetBtn = document.getElementById('resetBtn');
         const playerVsPlayerBtn = document.getElementById('playerVsPlayerBtn');
         const playerVsComputerBtn = document.getElementById('playerVsComputerBtn');
+        const easyBtn = document.getElementById('easyBtn');
+        const mediumBtn = document.getElementById('mediumBtn');
+        const hardBtn = document.getElementById('hardBtn');
 
         let board = Array.from({
             length: 9
         }, (_, i) => (i + 1).toString());
         let currentPlayer = 'X';
         let isPlayerVsComputer = false;
+        let difficulty = 'medium';
         let socket = io();
 
         // Function to display the Tic-Tac-Toe board
@@ -161,11 +170,39 @@
         // Function to handle computer move
         function handleComputerMove() {
             const availableCells = board.map((cell, index) => cell === 'X' || cell === 'O' ? null : index).filter(index => index !== null);
-            const bestMove = findBestMove();
+            let bestMove;
+            if (difficulty === 'easy') {
+                bestMove = availableCells[Math.floor(Math.random() * availableCells.length)];
+            } else if (difficulty === 'medium') {
+                bestMove = findBestMoveMedium();
+            } else {
+                bestMove = findBestMove();
+            }
             handlePlayerInput(bestMove);
         }
 
-        // Function to find the best move for the computer
+        // Function to find the best move for the computer (medium difficulty)
+        function findBestMoveMedium() {
+            // Simple AI that blocks the player from winning
+            for (let i = 0; i < board.length; i++) {
+                if (board[i] !== 'X' && board[i] !== 'O') {
+                    let temp = board[i];
+                    board[i] = 'O';
+                    if (checkWin('O')) {
+                        return i;
+                    }
+                    board[i] = 'X';
+                    if (checkWin('X')) {
+                        board[i] = temp;
+                        return i;
+                    }
+                    board[i] = temp;
+                }
+            }
+            return availableCells[Math.floor(Math.random() * availableCells.length)];
+        }
+
+        // Function to find the best move for the computer (hard difficulty)
         function findBestMove() {
             let bestScore = -Infinity;
             let move;
@@ -239,6 +276,28 @@
             resetBoard();
             playerVsComputerBtn.classList.add('active-mode');
             playerVsPlayerBtn.classList.remove('active-mode');
+        });
+
+        // Add difficulty selection event listeners
+        easyBtn.addEventListener('click', () => {
+            difficulty = 'easy';
+            easyBtn.classList.add('active-mode');
+            mediumBtn.classList.remove('active-mode');
+            hardBtn.classList.remove('active-mode');
+        });
+
+        mediumBtn.addEventListener('click', () => {
+            difficulty = 'medium';
+            mediumBtn.classList.add('active-mode');
+            easyBtn.classList.remove('active-mode');
+            hardBtn.classList.remove('active-mode');
+        });
+
+        hardBtn.addEventListener('click', () => {
+            difficulty = 'hard';
+            hardBtn.classList.add('active-mode');
+            easyBtn.classList.remove('active-mode');
+            mediumBtn.classList.remove('active-mode');
         });
 
         // Initial display
