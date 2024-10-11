@@ -284,6 +284,10 @@
             easyBtn.classList.add('active-mode');
             mediumBtn.classList.remove('active-mode');
             hardBtn.classList.remove('active-mode');
+            if (isPlayerVsComputer) {
+                playerVsComputerBtn.classList.add('active-mode');
+                playerVsPlayerBtn.classList.remove('active-mode');
+            }
         });
 
         mediumBtn.addEventListener('click', () => {
@@ -291,6 +295,10 @@
             mediumBtn.classList.add('active-mode');
             easyBtn.classList.remove('active-mode');
             hardBtn.classList.remove('active-mode');
+            if (isPlayerVsComputer) {
+                playerVsComputerBtn.classList.add('active-mode');
+                playerVsPlayerBtn.classList.remove('active-mode');
+            }
         });
 
         hardBtn.addEventListener('click', () => {
@@ -298,6 +306,10 @@
             hardBtn.classList.add('active-mode');
             easyBtn.classList.remove('active-mode');
             mediumBtn.classList.remove('active-mode');
+            if (isPlayerVsComputer) {
+                playerVsComputerBtn.classList.add('active-mode');
+                playerVsPlayerBtn.classList.remove('active-mode');
+            }
         });
 
         // Initial display
