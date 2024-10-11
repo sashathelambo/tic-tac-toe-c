@@ -303,7 +303,9 @@
             resetBoard();
         });
 
-        socket.on('gameOver', (message) => {
+        socket.on('gameOver', ({
+            message
+        }) => {
             messageElement.textContent = message;
         });
 
@@ -332,13 +334,5 @@
         });
     </script>
 </body>
-
-</html>
-
-socket.on('gameOver', (message) => { messageElement.textContent = message; });
-</script>
-</body>
-
-</html>
 
 </html>
