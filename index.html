@@ -68,192 +68,119 @@
     <footer class="mt-auto text-gray-500">
         <p>&copy; 2024 Tic-Tac-Toe Game. All rights reserved.</p>
     </footer>
-
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const outputDiv = document.getElementById("output");
+        const boardElement = document.querySelector('.board');
+        const messageElement = document.querySelector('.message');
+        const resetBtn = document.getElementById('resetBtn');
 
-            function appendToOutput(message) {
-                const p = document.createElement("p");
-                p.textContent = message;
-                outputDiv.appendChild(p);
+        let board = Array.from({
+            length: 9
+        }, (_, i) => (i + 1).toString());
+        let currentPlayer = 'X';
+        let isComputerOpponent = false;
+        let exitFlag = false;
+        let returnToMenuFlag = false;
+
+        // Function to display the Tic-Tac-Toe board
+        function displayBoard() {
+            boardElement.innerHTML = '';
+            board.forEach((cell, index) => {
+                const cellElement = document.createElement('div');
+                cellElement.classList.add('cell');
+                cellElement.textContent = cell;
+                cellElement.addEventListener('click', () => handlePlayerInput(index + 1));
+                boardElement.appendChild(cellElement);
+            });
+        }
+
+        // Function to check if a player has won
+        function checkWin(marker) {
+            const winPatterns = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8], // rows
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8], // columns
+                [0, 4, 8],
+                [2, 4, 6] // diagonals
+            ];
+
+            return winPatterns.some(pattern =>
+                pattern.every(index => board[index] === marker)
+            );
+        }
+
+        // Function to check if the game is a draw
+        function isDraw() {
+            return board.every(cell => cell === 'X' || cell === 'O');
+        }
+
+        // Function to reset the board
+        function resetBoard() {
+            board = Array.from({
+                length: 9
+            }, (_, i) => (i + 1).toString());
+            currentPlayer = 'X';
+            messageElement.textContent = '';
+            displayBoard();
+        }
+
+        // Function to handle player input
+        function handlePlayerInput(pos) {
+            if (board[pos - 1] === 'X' || board[pos - 1] === 'O') {
+                messageElement.textContent = 'Cell already taken. Please choose another position.';
+                messageElement.className = 'error';
+                return;
             }
 
-            function runGame() {
-                appendToOutput("Welcome to Tic-Tac-Toe! Player 1 is X, Player 2 is O. Let's begin!");
-                appendToOutput("Press ESC at any time to exit the game.");
-                appendToOutput("Press 'M' at any time to return to the menu.");
+            board[pos - 1] = currentPlayer;
+            displayBoard();
 
-                let board = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
-                let currentPlayer = "X";
-                let exitFlag = false;
-                let returnToMenuFlag = false;
-
-                function displayBoard() {
-                    let boardStr = "";
-                    for (let i = 0; i < 9; i += 3) {
-                        boardStr += `${board[i]} | ${board[i + 1]} | ${board[i + 2]}\n`;
-                        if (i < 6) boardStr += "---------\n";
-                    }
-                    appendToOutput(boardStr);
-                }
-
-                function isCellTaken(pos) {
-                    return board[pos - 1] === "X" || board[pos - 1] === "O";
-                }
-
-                function checkWin(marker) {
-                    const winPatterns = [
-                        [0, 1, 2],
-                        [3, 4, 5],
-                        [6, 7, 8], // rows
-                        [0, 3, 6],
-                        [1, 4, 7],
-                        [2, 5, 8], // columns
-                        [0, 4, 8],
-                        [2, 4, 6] // diagonals
-                    ];
-                    return winPatterns.some(pattern =>
-                        pattern.every(index => board[index] === marker)
-                    );
-                }
-
-                function isDraw() {
-                    return board.every(cell => cell === "X" || cell === "O");
-                }
-
-                function resetBoard() {
-                    board = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
-                }
-
-                function getPlayerInput() {
-                    return new Promise((resolve) => {
-                        document.addEventListener("keydown", function onKeyPress(event) {
-                            if (event.key === "Escape") {
-                                exitFlag = true;
-                                appendToOutput("ESC clicked. Exiting the game...");
-                                document.removeEventListener("keydown", onKeyPress);
-                                resolve(-1);
-                            } else if (event.key.toLowerCase() === "m") {
-                                returnToMenuFlag = true;
-                                appendToOutput("Menu clicked. Returning to menu...");
-                                document.removeEventListener("keydown", onKeyPress);
-                                resolve(-1);
-                            } else if (event.key >= "1" && event.key <= "9") {
-                                const position = parseInt(event.key);
-                                appendToOutput(event.key);
-                                document.removeEventListener("keydown", onKeyPress);
-                                resolve(position);
-                            } else {
-                                appendToOutput("Invalid input. Please enter a number between 1 and 9:");
-                            }
-                        });
-                    });
-                }
-
-                async function playGame(isComputerOpponent) {
-                    resetBoard();
-                    displayBoard();
-
-                    while (!exitFlag && !returnToMenuFlag) {
-                        appendToOutput(`Player ${currentPlayer === "X" ? "1 (X)" : "2 (O)"}, choose a position (1-9):`);
-                        let pos;
-                        let validMove = false;
-
-                        while (!validMove && !exitFlag && !returnToMenuFlag) {
-                            if (currentPlayer === "O" && isComputerOpponent) {
-                                pos = getComputerInput();
-                            } else {
-                                pos = await getPlayerInput();
-                            }
-                            if (pos === -1) break;
-                            if (isCellTaken(pos)) {
-                                appendToOutput("Cell already taken. Please choose another position.");
-                            } else {
-                                validMove = true;
-                            }
-                        }
-
-                        if (exitFlag || returnToMenuFlag) break;
-
-                        board[pos - 1] = currentPlayer;
-                        displayBoard();
-
-                        if (checkWin(currentPlayer)) {
-                            appendToOutput(`Player ${currentPlayer === "X" ? "1 (X)" : "2 (O)"} wins!`);
-                            break;
-                        }
-
-                        if (isDraw()) {
-                            appendToOutput("It's a draw!");
-                            break;
-                        }
-
-                        currentPlayer = currentPlayer === "X" ? "O" : "X";
-                    }
-
-                    if (!exitFlag && !returnToMenuFlag) {
-                        appendToOutput("Press any key to continue...");
-                        await new Promise(resolve => document.addEventListener("keydown", resolve, {
-                            once: true
-                        }));
-                    }
-                }
-
-                function getComputerInput() {
-                    let pos;
-                    do {
-                        pos = Math.floor(Math.random() * 9) + 1;
-                    } while (isCellTaken(pos));
-                    appendToOutput(pos);
-                    return pos;
-                }
-
-                async function showMenu() {
-                    appendToOutput("Do you want to play against the computer or another player?");
-                    appendToOutput("1. Play against the computer");
-                    appendToOutput("2. Play against another player");
-                    appendToOutput("Enter your choice (1 or 2, ESC to exit or M to go back to menu):");
-
-                    let isComputerOpponent = false;
-                    let choice;
-                    while (true) {
-                        choice = await getPlayerInput();
-                        if (choice === -1) return;
-                        if (choice === 1) {
-                            isComputerOpponent = true;
-                            break;
-                        } else if (choice === 2) {
-                            isComputerOpponent = false;
-                            break;
-                        } else {
-                            appendToOutput("Invalid choice. Please enter 1, 2, or M or ESC:");
-                        }
-                    }
-
-                    while (!exitFlag && !returnToMenuFlag) {
-                        if (!exitFlag && !returnToMenuFlag) {
-                            await playGame(isComputerOpponent);
-                        }
-
-                        if (!exitFlag && !returnToMenuFlag) {
-                            appendToOutput("Do you want to play again? (y for yes, n for no, and m for menu):");
-                            let playAgain = await getPlayerInput();
-                            if (playAgain === -1) return;
-                            if (playAgain === 'n' || playAgain === 'N') {
-                                exitFlag = true;
-                            } else if (playAgain === 'm' || playAgain === 'M') {
-                                returnToMenuFlag = true;
-                            }
-                        }
-                    }
-                }
-
-                showMenu();
+            if (checkWin(currentPlayer)) {
+                messageElement.textContent = `Player ${currentPlayer} wins!`;
+                messageElement.className = 'win';
+                return;
             }
 
-            runGame();
-        });
+            if (isDraw()) {
+                messageElement.textContent = "It's a draw!";
+                messageElement.className = 'draw';
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            if (isComputerOpponent && currentPlayer === 'O') {
+                handleComputerInput();
+            }
+        }
+
+        // Function to handle computer input
+        function handleComputerInput() {
+            let pos;
+            do {
+                pos = Math.floor(Math.random() * 9) + 1;
+            } while (board[pos - 1] === 'X' || board[pos - 1] === 'O');
+
+            board[pos - 1] = 'O';
+            displayBoard();
+
+            if (checkWin('O')) {
+                messageElement.textContent = 'Player O (Computer) wins!';
+                messageElement.className = 'win';
+            } else if (isDraw()) {
+                messageElement.textContent = "It's a draw!";
+                messageElement.className = 'draw';
+            } else {
+                currentPlayer = 'X';
+            }
+        }
+
+        // Add reset event listener
+        resetBtn.addEventListener('click', resetBoard);
+
+        // Initial display
+        displayBoard();
     </script>
 
 </body>
