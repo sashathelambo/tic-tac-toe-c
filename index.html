@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #4CAF50;
+        }
+        
+        .instructions {
+            margin: 20px auto;
+            max-width: 600px;
+            text-align: left;
+        }
+        
+        .instructions p {
+            line-height: 1.6;
+        }
+        
+        .console {
+            background-color: #000;
+            color: #0f0;
+            font-family: monospace;
+            padding: 10px;
+            margin: 20px auto;
+            max-width: 600px;
+            height: 300px;
+            overflow-y: auto;
+            border: 2px solid #333;
+        }
+        
+        .console-output {
+            white-space: pre-wrap;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Welcome to Tic-Tac-Toe!</h1>
+    <div class="instructions">
+        <h2>Instructions</h2>
+        <p>This is a console-based Tic-Tac-Toe game written in C++. Follow the instructions below to play the game:</p>
+        <ol>
+            <li>Download and extract the game files.</li>
+            <li>Open a terminal or command prompt.</li>
+            <li>Navigate to the directory containing the game files.</li>
+            <li>Run the executable file <code>main.exe</code> to start the game.</li>
+            <li>Follow the on-screen instructions to play against another player or the computer.</li>
+            <li>Press <strong>ESC</strong> at any time to exit the game or <strong>M</strong> to return to the menu.</li>
+        </ol>
+        <h2>Game Features</h2>
+        <ul>
+            <li>Play against another player or the computer.</li>
+            <li>Color-coded console output for better visibility.</li>
+            <li>Simple and intuitive controls.</li>
+        </ul>
+    </div>
+    <div class="console">
+        <div class="console-output" id="console-output">
+            Welcome to the virtual console!
+        </div>
+    </div>
+    <footer>
+        <p>&copy; 2023 Tic-Tac-Toe Game. All rights reserved.</p>
+    </footer>
+    <script>
+        const consoleOutput = document.getElementById('console-output');
+
+        function appendToConsoleOutput(text) {
+            consoleOutput.innerHTML += text + '<br>';
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+    </script>
+</body>
+
+</html>
