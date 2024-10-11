@@ -67,16 +67,16 @@
         <h2 class="text-2xl font-semibold text-blue-400 mb-4">Instructions</h2>
         <p class="mb-4">This is a web-based Tic-Tac-Toe game. Click on a cell to make a move. The first player to align three of their marks in a row, column, or diagonal wins!</p>
     </div>
-    <div id="menu" class="mt-4">
-        <button id="createLobbyBtn" class="bg-green-500 text-white px-4 py-2 rounded">Create Lobby</button>
-        <button id="joinLobbyBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Join Lobby</button>
-        <div id="joinLobbySection" class="hidden mt-4">
+    <div id="menu" class="mt-4 flex flex-col items-center">
+        <button id="createLobbyBtn" class="bg-green-500 text-white px-4 py-2 rounded mb-2">Create Lobby</button>
+        <button id="joinLobbyBtn" class="bg-blue-500 text-white px-4 py-2 rounded mb-2">Join Lobby</button>
+        <div id="joinLobbySection" class="hidden mt-4 flex flex-col items-center">
             <input type="text" id="lobbyIdInput" placeholder="Enter Lobby ID" class="p-2 rounded bg-gray-800 text-white mb-2">
-            <button id="confirmJoinLobbyBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Join Lobby</button>
+            <button id="confirmJoinLobbyBtn" class="bg-blue-500 text-white px-4 py-2 rounded mb-2">Join Lobby</button>
             <label class="ml-2 text-sm"><input type="checkbox" id="spectatorMode" class="mr-2">Spectator Mode</label>
         </div>
     </div>
-    <div id="lobby" class="hidden mt-4">
+    <div id="lobby" class="hidden mt-4 flex flex-col items-center">
         <h2 class="text-2xl font-semibold text-blue-400 mb-4">Lobby</h2>
         <div id="lobbyId" class="text-xl mb-4"></div>
         <button id="startGameBtn" class="bg-red-500 text-white px-4 py-2 rounded">Start Game</button>
@@ -84,12 +84,12 @@
     <div class="board hidden"></div>
     <div id="message" class="text-xl mt-4"></div>
     <button id="resetBtn" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hidden">Reset Game</button>
-    <div class="mt-4 hidden">
-        <button id="playerVsPlayerBtn" class="bg-green-500 text-white px-4 py-2 rounded">Player vs Player</button>
+    <div class="mt-4 hidden flex flex-col items-center">
+        <button id="playerVsPlayerBtn" class="bg-green-500 text-white px-4 py-2 rounded mb-2">Player vs Player</button>
         <button id="playerVsComputerBtn" class="bg-red-500 text-white px-4 py-2 rounded">Player vs Computer</button>
     </div>
     <button id="toggleDarkMode" class="mt-4 bg-gray-600 text-white px-4 py-2 rounded">Toggle Dark Mode</button>
-    <footer class="mt-auto text-gray-500">
+    <footer class="mt-auto text-gray-500 text-center">
         <p>&copy; 2024 Tic-Tac-Toe Game. All rights reserved.</p>
     </footer>
 
