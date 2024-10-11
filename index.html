@@ -4,103 +4,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic-Tac-Toe Game</title>
+    <title>Tic-Tac-Toe</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            text-align: center;
-            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
         }
         
-        h1 {
-            color: #4CAF50;
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 10px;
         }
         
-        .instructions {
-            margin: 20px auto;
-            max-width: 600px;
-            text-align: left;
-        }
-        
-        .instructions p {
-            line-height: 1.6;
-        }
-        
-        .console {
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
             background-color: #fff;
-            color: #000;
-            font-family: monospace;
-            padding: 10px;
-            margin: 20px auto;
-            max-width: 600px;
-            height: 300px;
-            overflow-y: auto;
-            border: 2px solid #333;
+            border: 1px solid #ccc;
+            cursor: pointer;
         }
         
-        .console-output {
-            white-space: pre-wrap;
-            text-align: left;
+        .cell.x {
+            color: red;
+        }
+        
+        .cell.o {
+            color: blue;
         }
     </style>
 </head>
 
 <body>
-    <h1>Welcome to Tic-Tac-Toe!</h1>
-    <div class="instructions">
-        <h2>Instructions</h2>
-        <p>This is a console-based Tic-Tac-Toe game written in C++. Follow the instructions below to play:</p>
-        <ol>
-            <li>Download and extract the game files.</li>
-            <li>Open a terminal or command prompt.</li>
-            <li>Navigate to the directory containing the game files.</li>
-            <li>Run the executable file <code>main.exe</code> to start the game.</li>
-            <li>Follow the on-screen instructions to play against another player or the computer.</li>
-            <li>Press <strong>ESC</strong> to exit the game or <strong>M</strong> to return to the menu.</li>
-        </ol>
-        <h2>Game Features</h2>
-        <ul>
-            <li>Play against another player or the computer.</li>
-            <li>Color-coded console output for better visibility.</li>
-            <li>Simple and intuitive controls.</li>
-        </ul>
+    <div class="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
     </div>
-    <div class="console">
-        <div class="console-output" id="console-output">
-            Welcome to the virtual console!
-        </div>
-    </div>
-    <footer>
-        <p>&copy; 2023 Tic-Tac-Toe Game. All rights reserved.</p>
-    </footer>
-    <script>
-        const consoleOutput = document.getElementById('console-output');
 
-        function appendToConsoleOutput(text) {
-            consoleOutput.innerHTML += text + '<br>';
-            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    <script>
+        const board = document.querySelector('.board');
+        const cells = document.querySelectorAll('.cell');
+        let currentPlayer = 'x';
+
+        function checkWin() {
+            const winPatterns = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8], // rows
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8], // columns
+                [0, 4, 8],
+                [2, 4, 6] // diagonals
+            ];
+
+            return winPatterns.some(pattern => {
+                return pattern.every(index => {
+                    return cells[index].classList.contains(currentPlayer);
+                });
+            });
         }
 
-        // Simulate the console output from main.cpp
-        const messages = [
-            "Welcome to Tic-Tac-Toe! Player 1 is X, Player 2 is O. Let's begin!",
-            "Press ESC to exit the game.",
-            "Press 'M' to return to the menu.",
-            "Player 1 (X), choose a position (1-9): ",
-            "Player 2 (O), choose a position (1-9): ",
-            "Player 1 (X) wins!",
-            "It's a draw!",
-            "ESC clicked. Exiting the game...",
-            "Menu clicked. Returning to menu..."
-        ];
+        function checkDraw() {
+            return [...cells].every(cell => {
+                return cell.classList.contains('x') || cell.classList.contains('o');
+            });
+        }
 
-        messages.forEach((msg, index) => {
-            setTimeout(() => {
-                appendToConsoleOutput(msg);
-            }, index * 1000);
-        });
+        function handleClick(event) {
+            const cell = event.target;
+            if (cell.classList.contains('x') || cell.classList.contains('o')) {
+                return;
+            }
+
+            cell.classList.add(currentPlayer);
+
+            if (checkWin()) {
+                setTimeout(() => {
+                    alert(`Player ${currentPlayer.toUpperCase()} wins!`);
+                    resetBoard();
+                }, 100);
+                return;
+            }
+
+            if (checkDraw()) {
+                setTimeout(() => {
+                    alert('It\'s a draw!');
+                    resetBoard();
+                }, 100);
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'x' ? 'o' : 'x';
+        }
+
+        function resetBoard() {
+            cells.forEach(cell => {
+                cell.classList.remove('x', 'o');
+            });
+            currentPlayer = 'x';
+        }
+
+        board.addEventListener('click', handleClick);
     </script>
 </body>
 
