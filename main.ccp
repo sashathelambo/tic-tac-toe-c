@@ -98,8 +98,8 @@ int main() {
     }
 
     cout << "Press any key to continue or Esc to exit..." << endl;
-    char key = _getch();
-    if (key == 27) { // 27 is the ASCII code for the Esc key
+    char key = _getch(); // 27 is the ASCII code for the Esc key
+    if (key == 27) {
         return 0;
     } else {
         resetBoard(board);
