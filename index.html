@@ -40,6 +40,10 @@
         .cell.o {
             color: #4db6ac;
         }
+        
+        .active-mode {
+            border: 2px solid #fff;
+        }
     </style>
 </head>
 
@@ -159,11 +163,15 @@
         playerVsPlayerBtn.addEventListener('click', () => {
             isPlayerVsComputer = false;
             resetBoard();
+            playerVsPlayerBtn.classList.add('active-mode');
+            playerVsComputerBtn.classList.remove('active-mode');
         });
 
         playerVsComputerBtn.addEventListener('click', () => {
             isPlayerVsComputer = true;
             resetBoard();
+            playerVsComputerBtn.classList.add('active-mode');
+            playerVsPlayerBtn.classList.remove('active-mode');
         });
 
         // Initial display
