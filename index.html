@@ -60,6 +60,34 @@
                 font-size: 1.5em;
             }
         }
+        
+        button {
+            transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            background-color: #007bff;
+            /* Default blue color */
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+        
+        .light-mode-button {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        .light-mode-button:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .light-mode-button:active {
+            box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .clicked {
+            background-color: #ff0000;
+            /* Red color when clicked */
+        }
     </style>
 </head>
 
@@ -398,13 +426,15 @@
             let audio;
             switch (sound) {
                 case 'move':
-                    audio = new Audio('https://opengameart.org/sites/default/files/select_0.wav'); // Replace with your move sound
+                    audio = new Audio('https://example.com/move-sound.mp3'); // Replace with a valid URL
                     break;
                 case 'gameOver':
-                    audio = new Audio('https://opengameart.org/sites/default/files/Buzzer3.wav'); // Replace with your game over sound
+                    audio = new Audio('https://example.com/game-over-sound.mp3'); // Replace with a valid URL
                     break;
             }
-            audio.play();
+            audio.play().catch(error => {
+                console.error('Audio playback failed:', error);
+            });
         }
 
         function addToGameHistory(result) {
@@ -487,11 +517,19 @@
         darkModeBtn.addEventListener('click', () => {
             document.body.classList.add('bg-gray-900', 'text-white');
             document.body.classList.remove('bg-white', 'text-black');
+            mediumBtn.classList.add('bg-orange-500', 'text-white');
         });
 
         lightModeBtn.addEventListener('click', () => {
             document.body.classList.add('bg-white', 'text-black');
             document.body.classList.remove('bg-gray-900', 'text-white');
+
+            buttons.forEach(button => {
+                button.classList.remove('text-white', 'clicked');
+                button.classList.add('text-black', 'light-mode-button');
+            });
+
+            mediumBtn.classList.add('bg-orange-500', 'text-black');
         });
 
         // Socket event listeners
@@ -513,6 +551,19 @@
             playSound('gameOver');
         });
 
+        function toggleButtonColor(button) {
+            if (button.id !== 'resetBtn') {
+                // Toggle 'clicked' class on the current button
+                button.classList.toggle('clicked');
+            }
+        }
+
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                toggleButtonColor(button);
+            });
+        });
 
         displayBoard(board);
 
