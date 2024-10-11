@@ -29,8 +29,8 @@
         }
         
         .console {
-            background-color: #000;
-            color: #0f0;
+            background-color: #fff;
+            color: #000;
             font-family: monospace;
             padding: 10px;
             margin: 20px auto;
@@ -51,14 +51,14 @@
     <h1>Welcome to Tic-Tac-Toe!</h1>
     <div class="instructions">
         <h2>Instructions</h2>
-        <p>This is a console-based Tic-Tac-Toe game written in C++. Follow the instructions below to play the game:</p>
+        <p>This is a console-based Tic-Tac-Toe game written in C++. Follow the instructions below to play:</p>
         <ol>
             <li>Download and extract the game files.</li>
             <li>Open a terminal or command prompt.</li>
             <li>Navigate to the directory containing the game files.</li>
             <li>Run the executable file <code>main.exe</code> to start the game.</li>
             <li>Follow the on-screen instructions to play against another player or the computer.</li>
-            <li>Press <strong>ESC</strong> at any time to exit the game or <strong>M</strong> to return to the menu.</li>
+            <li>Press <strong>ESC</strong> to exit the game or <strong>M</strong> to return to the menu.</li>
         </ol>
         <h2>Game Features</h2>
         <ul>
@@ -82,6 +82,25 @@
             consoleOutput.innerHTML += text + '<br>';
             consoleOutput.scrollTop = consoleOutput.scrollHeight;
         }
+
+        // Simulate the console output from main.cpp
+        const messages = [
+            "Welcome to Tic-Tac-Toe! Player 1 is X, Player 2 is O. Let's begin!",
+            "Press ESC to exit the game.",
+            "Press 'M' to return to the menu.",
+            "Player 1 (X), choose a position (1-9): ",
+            "Player 2 (O), choose a position (1-9): ",
+            "Player 1 (X) wins!",
+            "It's a draw!",
+            "ESC clicked. Exiting the game...",
+            "Menu clicked. Returning to menu..."
+        ];
+
+        messages.forEach((msg, index) => {
+            setTimeout(() => {
+                appendToConsoleOutput(msg);
+            }, index * 1000);
+        });
     </script>
 </body>
 
