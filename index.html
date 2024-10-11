@@ -52,6 +52,10 @@
     <div class="board"></div>
     <div id="message" class="text-xl mt-4"></div>
     <button id="resetBtn" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Reset Game</button>
+    <div class="mt-4">
+        <button id="playerVsPlayerBtn" class="bg-green-500 text-white px-4 py-2 rounded">Player vs Player</button>
+        <button id="playerVsComputerBtn" class="bg-red-500 text-white px-4 py-2 rounded">Player vs Computer</button>
+    </div>
     <footer class="mt-auto text-gray-500">
         <p>&copy; 2024 Tic-Tac-Toe Game. All rights reserved.</p>
     </footer>
@@ -60,11 +64,14 @@
         const boardElement = document.querySelector('.board');
         const messageElement = document.getElementById('message');
         const resetBtn = document.getElementById('resetBtn');
+        const playerVsPlayerBtn = document.getElementById('playerVsPlayerBtn');
+        const playerVsComputerBtn = document.getElementById('playerVsComputerBtn');
 
         let board = Array.from({
             length: 9
         }, (_, i) => (i + 1).toString());
         let currentPlayer = 'X';
+        let isPlayerVsComputer = false;
 
         // Function to display the Tic-Tac-Toe board
         function displayBoard() {
@@ -132,14 +139,42 @@
             }
 
             currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+
+            if (isPlayerVsComputer && currentPlayer === 'O') {
+                handleComputerMove();
+            }
+        }
+
+        // Function to handle computer move
+        function handleComputerMove() {
+            const availableCells = board.map((cell, index) => cell === 'X' || cell === 'O' ? null : index).filter(index => index !== null);
+            const randomIndex = availableCells[Math.floor(Math.random() * availableCells.length)];
+            handlePlayerInput(randomIndex);
         }
 
         // Add reset event listener
         resetBtn.addEventListener('click', resetBoard);
 
+        // Add mode selection event listeners
+        playerVsPlayerBtn.addEventListener('click', () => {
+            isPlayerVsComputer = false;
+            resetBoard();
+        });
+
+        playerVsComputerBtn.addEventListener('click', () => {
+            isPlayerVsComputer = true;
+            resetBoard();
+        });
+
         // Initial display
         displayBoard();
     </script>
 </body>
+
+</html>
+</script>
+</body>
+
+</html>
 
 </html>
