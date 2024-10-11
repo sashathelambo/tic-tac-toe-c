@@ -1,3 +1,4 @@
+ // Start of Selection
 <!DOCTYPE html>
 <html lang="en">
 
@@ -96,21 +97,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
     <script src="./gameLogic.js"></script>
     <script>
-        const gameLogic = {
-            displayBoard: displayBoard,
-            checkWin,
-            isDraw,
-            resetBoard,
-            handlePlayerInput,
-            handleComputerMove,
-            findBestMoveMedium,
-            findBestMove,
-            minimax,
-            addGameHistory,
-            playSound: playSoundFromLogic,
-            highlightWinningCells: highlightWinningCellsFromLogic
-        };
-
+        // Use gameLogic from gameLogic.js directly without redefining it
         const boardElement = document.querySelector('.board');
         const messageElement = document.getElementById('message');
         const resetBtn = document.getElementById('resetBtn');
@@ -133,19 +120,19 @@
         let gameHistory = [];
 
         // Add reset event listener
-        resetBtn.addEventListener('click', resetBoard);
+        resetBtn.addEventListener('click', gameLogic.resetBoard);
 
         // Add mode selection event listeners
         playerVsPlayerBtn.addEventListener('click', () => {
             isPlayerVsComputer = false;
-            resetBoard();
+            gameLogic.resetBoard();
             playerVsPlayerBtn.classList.add('active-mode');
             playerVsComputerBtn.classList.remove('active-mode');
         });
 
         playerVsComputerBtn.addEventListener('click', () => {
             isPlayerVsComputer = true;
-            resetBoard();
+            gameLogic.resetBoard();
             playerVsComputerBtn.classList.add('active-mode');
             playerVsPlayerBtn.classList.remove('active-mode');
         });
@@ -206,26 +193,15 @@
         });
 
         socket.on('resetBoard', () => {
-            resetBoard();
+            gameLogic.resetBoard();
         });
 
         socket.on('gameOver', (message) => {
             messageElement.textContent = message;
-            playSoundFromLogic('gameOver');
+            gameLogic.playSound('gameOver');
         });
 
-        // Highlight winning cells
-        function highlightWinningCells(cells) {
-            cells.forEach(index => {
-                document.querySelector(`.cell:nth-child(${index + 1})`).classList.add('highlight');
-            });
-        }
-
-        // Play sound effects
-        function playSound(effect) {
-            const audio = new Audio(`./sounds/${effect}.mp3`);
-            audio.play();
-        }
+        // Highlight winning cells and play sound effects are handled within gameLogic.js
 
         // Testing functions
         const {
