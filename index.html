@@ -96,7 +96,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
     <script src="./gameLogic.js"></script>
     <script>
-        const {
+        const gameLogic = {
             displayBoard,
             checkWin,
             isDraw,
@@ -109,7 +109,7 @@
             addGameHistory,
             playSound: playSoundFromLogic,
             highlightWinningCells: highlightWinningCellsFromLogic
-        } = gameLogic;
+        };
 
         const boardElement = document.querySelector('.board');
         const messageElement = document.getElementById('message');
@@ -193,7 +193,7 @@
         });
 
         // Initial display
-        displayBoard();
+        gameLogic.displayBoard(board);
 
         // Socket event listeners
         socket.on('playerMove', ({
@@ -202,7 +202,7 @@
         }) => {
             board = newBoard;
             currentPlayer = newCurrentPlayer;
-            displayBoard();
+            gameLogic.displayBoard(board);
         });
 
         socket.on('resetBoard', () => {
