@@ -3,19 +3,21 @@
 #include <string>
 #include <conio.h>
 #include <windows.h>
-#include <atomic>
 #include <cstdlib>
 #include <ctime>
 
 using namespace std;
 
-atomic<bool> exitFlag(false);
-atomic<bool> returnToMenuFlag(false);
+// Global flags for exiting and returning to menu
+bool exitFlag = false;
+bool returnToMenuFlag = false;
 
+// Function to set console text color
 void setColor(int color) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
 }
 
+// Function to display the Tic-Tac-Toe board
 void displayBoard(const vector<string>& board) {
     for (int i = 0; i < 9; i += 3) {
         for (int j = 0; j < 3; ++j) {
@@ -35,23 +37,24 @@ void displayBoard(const vector<string>& board) {
     }
 }
 
+// Function to check if input is valid
 bool isValidInput(const string& input) {
-    if (input.length() != 1 || !isdigit(input[0])) return false;
-    int pos = stoi(input);
-    return pos >= 1 && pos <= 9;
+    return input.length() == 1 && isdigit(input[0]) && stoi(input) >= 1 && stoi(input) <= 9;
 }
 
+// Function to check if a cell is already taken
 bool isCellTaken(const vector<string>& board, int pos) {
     return board[pos - 1] == "X" || board[pos - 1] == "O";
 }
 
+// Function to check if a player has won
 bool checkWin(const vector<string>& board, const string& marker) {
-    const int winPatterns[8][3] = {
+    int winPatterns[8][3] = {
         {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, // rows
         {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, // columns
         {0, 4, 8}, {2, 4, 6}             // diagonals
     };
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 8; i++) {
         if (board[winPatterns[i][0]] == marker && board[winPatterns[i][1]] == marker && board[winPatterns[i][2]] == marker) {
             return true;
         }
@@ -59,19 +62,24 @@ bool checkWin(const vector<string>& board, const string& marker) {
     return false;
 }
 
+// Function to check if the game is a draw
 bool isDraw(const vector<string>& board) {
-    for (int i = 0; i < 9; ++i) {
-        if (board[i] != "X" && board[i] != "O") return false;
+    for (int i = 0; i < 9; i++) {
+        if (board[i] != "X" && board[i] != "O") {
+            return false;
+        }
     }
     return true;
 }
 
+// Function to reset the board
 void resetBoard(vector<string>& board) {
     for (int i = 0; i < 9; ++i) {
         board[i] = to_string(i + 1);
     }
 }
 
+// Function to get player input
 int getPlayerInput() {
     while (true) {
         if (_kbhit()) {
@@ -103,25 +111,8 @@ int getPlayerInput() {
     }
 }
 
+// Function to get computer input
 int getComputerInput(const vector<string>& board) {
-    // Predict the player's move and block it or try to win if possible
-    for (int i = 0; i < 9; ++i) {
-        if (board[i] != "X" && board[i] != "O") {
-            vector<string> tempBoard = board;
-            tempBoard[i] = "X";
-            if (checkWin(tempBoard, "X")) {
-                cout << i + 1 << endl; // Echo the computer's move
-                return i + 1;
-            }
-            tempBoard[i] = "O";
-            if (checkWin(tempBoard, "O")) {
-                cout << i + 1 << endl; // Echo the computer's move
-                return i + 1;
-            }
-        }
-    }
-
-    // If no prediction, make a random move
     srand(time(0));
     int pos;
     do {
@@ -131,6 +122,7 @@ int getComputerInput(const vector<string>& board) {
     return pos;
 }
 
+// Function to play the game
 void playGame(bool isComputerOpponent) {
     vector<string> board(9);
     resetBoard(board);
@@ -203,11 +195,11 @@ void playGame(bool isComputerOpponent) {
     }
 }
 
+// Function to run tests
 void runTests() {
     vector<string> board(9);
     resetBoard(board);
 
-    // Test 1: Check initial board state
     for (int i = 0; i < 9; ++i) {
         if (exitFlag || returnToMenuFlag) return; // Exit if Esc or Menu is pressed
         if (board[i] != to_string(i + 1)) {
@@ -217,7 +209,6 @@ void runTests() {
     }
     cout << "Test 1 Passed: Initial board state is correct." << endl;
 
-    // Test 2: Check win condition for rows
     board = {"X", "X", "X", "4", "5", "6", "7", "8", "9"};
     if (exitFlag || returnToMenuFlag) return; // Exit if Esc or Menu is pressed
     if (!checkWin(board, "X")) {
@@ -226,7 +217,6 @@ void runTests() {
     }
     cout << "Test 2 Passed: Win condition for rows is correct." << endl;
 
-    // Test 3: Check win condition for columns
     board = {"X", "2", "3", "X", "5", "6", "X", "8", "9"};
     if (exitFlag || returnToMenuFlag) return; // Exit if Esc or Menu is pressed
     if (!checkWin(board, "X")) {
@@ -235,7 +225,6 @@ void runTests() {
     }
     cout << "Test 3 Passed: Win condition for columns is correct." << endl;
 
-    // Test 4: Check win condition for diagonals
     board = {"X", "2", "3", "4", "X", "6", "7", "8", "X"};
     if (exitFlag || returnToMenuFlag) return; // Exit if Esc or Menu is pressed
     if (!checkWin(board, "X")) {
@@ -244,7 +233,6 @@ void runTests() {
     }
     cout << "Test 4 Passed: Win condition for diagonals is correct." << endl;
 
-    // Test 5: Check draw condition
     board = {"X", "O", "X", "X", "O", "O", "O", "X", "X"};
     if (exitFlag || returnToMenuFlag) return; // Exit if Esc or Menu is pressed
     if (!isDraw(board)) {
@@ -254,16 +242,7 @@ void runTests() {
     cout << "Test 5 Passed: Draw condition is correct." << endl;
 }
 
-void showMenu();
-
-int main() {
-    while (!exitFlag) {
-        returnToMenuFlag = false;
-        showMenu();
-    }
-    return 0;
-}
-
+// Function to show the menu
 void showMenu() {
     char choice;
     bool isComputerOpponent = false;
@@ -326,4 +305,12 @@ void showMenu() {
             }
         }
     }
+}
+
+int main() {
+    while (!exitFlag) {
+        returnToMenuFlag = false;
+        showMenu();
+    }
+    return 0;
 }
