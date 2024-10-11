@@ -1,3 +1,4 @@
+ // Start of Selection
 <!DOCTYPE html>
 <html lang="en">
 
@@ -80,6 +81,7 @@
         <button id="easyBtn" class="bg-yellow-500 text-white px-4 py-2 rounded">Easy</button>
         <button id="mediumBtn" class="bg-orange-500 text-white px-4 py-2 rounded">Medium</button>
         <button id="hardBtn" class="bg-purple-500 text-white px-4 py-2 rounded">Hard</button>
+        <button id="extremeBtn" class="bg-indigo-500 text-white px-4 py-2 rounded">Extreme</button>
     </div>
     <div class="mt-4">
         <button id="darkModeBtn" class="bg-gray-700 text-white px-4 py-2 rounded">Dark Mode</button>
@@ -104,6 +106,7 @@
         const easyBtn = document.getElementById('easyBtn');
         const mediumBtn = document.getElementById('mediumBtn');
         const hardBtn = document.getElementById('hardBtn');
+        const extremeBtn = document.getElementById('extremeBtn');
         const darkModeBtn = document.getElementById('darkModeBtn');
         const lightModeBtn = document.getElementById('lightModeBtn');
         const gameHistoryElement = document.getElementById('gameHistory');
@@ -191,7 +194,7 @@
                 if (winningPattern) {
                     highlightWinningCells(winningPattern);
                     messageElement.textContent = `${currentPlayer} wins!`;
-                    socket.emit("gameOver", `${currentPlayer} wins!`)
+                    socket.emit("gameOver", `${currentPlayer} wins!`);
                     playSound('gameOver');
                     addToGameHistory(`${currentPlayer} wins!`);
                     return;
@@ -221,8 +224,10 @@
                     bestMove = getRandomAvailableMove();
                 } else if (difficulty === "medium") {
                     bestMove = getMediumDifficultyMove();
-                } else {
-                    bestMove = getMinimaxMove(board, currentPlayer);
+                } else if (difficulty === "hard") {
+                    bestMove = getHardDifficultyMove();
+                } else if (difficulty === "extreme") {
+                    bestMove = getExtremeDifficultyMove();
                 }
 
                 board[bestMove] = currentPlayer;
@@ -236,7 +241,7 @@
                 if (winningPattern) {
                     highlightWinningCells(winningPattern);
                     messageElement.textContent = `${currentPlayer} wins!`;
-                    socket.emit("gameOver", `${currentPlayer} wins!`)
+                    socket.emit("gameOver", `${currentPlayer} wins!`);
                     playSound('gameOver');
                     addToGameHistory(`${currentPlayer} wins!`);
                     return;
@@ -287,6 +292,40 @@
             return getRandomAvailableMove();
         }
 
+        function getHardDifficultyMove() {
+            // Enhanced minimax with depth consideration
+            return getMinimaxMove(board, currentPlayer);
+        }
+
+        function getExtremeDifficultyMove() {
+            // AI will always win if possible by prioritizing winning moves aggressively
+            const availableMoves = board
+                .map((cell, index) => (!isCellOccupied(index) ? index : null))
+                .filter(index => index !== null);
+
+            // First, check if AI can win in the next move
+            for (let move of availableMoves) {
+                const tempBoard = [...board];
+                tempBoard[move] = currentPlayer;
+                if (checkWin(tempBoard)) {
+                    return move;
+                }
+            }
+
+            // Block opponent's winning move
+            const opponent = currentPlayer === 'X' ? 'O' : 'X';
+            for (let move of availableMoves) {
+                const tempBoard = [...board];
+                tempBoard[move] = opponent;
+                if (checkWin(tempBoard)) {
+                    return move;
+                }
+            }
+
+            // Otherwise, use minimax to choose the best move
+            return getMinimaxMove(board, currentPlayer);
+        }
+
         function getMinimaxMove(board, player) {
             const availableMoves = board
                 .map((cell, index) => (!isCellOccupied(index) ? index : null))
@@ -295,10 +334,9 @@
             let bestScore = -Infinity;
             let bestMove;
 
-            for (let i = 0; i < availableMoves.length; i++) {
-                const move = availableMoves[i];
+            for (let move of availableMoves) {
                 board[move] = player;
-                const score = minimax(board, 0, false);
+                const score = minimax(board, 0, false, player);
                 board[move] = (move + 1).toString();
 
                 if (score > bestScore) {
@@ -310,11 +348,16 @@
             return bestMove;
         }
 
-        function minimax(board, depth, isMaximizing) {
-            const winner = checkWin(board);
+        function minimax(board, depth, isMaximizing, player) {
+            const opponent = player === 'X' ? 'O' : 'X';
+            const winnerPattern = checkWin(board);
 
-            if (winner) {
-                return winner[0] === 'O' ? 10 - depth : depth - 10;
+            if (winnerPattern) {
+                if (board[winnerPattern[0]] === player) {
+                    return 10 - depth;
+                } else {
+                    return depth - 10;
+                }
             }
 
             if (isDraw(board)) {
@@ -327,20 +370,18 @@
 
             if (isMaximizing) {
                 let bestScore = -Infinity;
-                for (let i = 0; i < availableMoves.length; i++) {
-                    const move = availableMoves[i];
-                    board[move] = 'O';
-                    const score = minimax(board, depth + 1, false);
+                for (let move of availableMoves) {
+                    board[move] = player;
+                    const score = minimax(board, depth + 1, false, player);
                     board[move] = (move + 1).toString();
                     bestScore = Math.max(score, bestScore);
                 }
                 return bestScore;
             } else {
                 let bestScore = Infinity;
-                for (let i = 0; i < availableMoves.length; i++) {
-                    const move = availableMoves[i];
-                    board[move] = 'X';
-                    const score = minimax(board, depth + 1, true);
+                for (let move of availableMoves) {
+                    board[move] = opponent;
+                    const score = minimax(board, depth + 1, true, player);
                     board[move] = (move + 1).toString();
                     bestScore = Math.min(score, bestScore);
                 }
@@ -405,6 +446,7 @@
             easyBtn.classList.add('active-mode');
             mediumBtn.classList.remove('active-mode');
             hardBtn.classList.remove('active-mode');
+            extremeBtn.classList.remove('active-mode');
             if (isPlayerVsComputer && currentPlayer === 'O') {
                 computerMove();
             }
@@ -415,6 +457,7 @@
             mediumBtn.classList.add('active-mode');
             easyBtn.classList.remove('active-mode');
             hardBtn.classList.remove('active-mode');
+            extremeBtn.classList.remove('active-mode');
             if (isPlayerVsComputer && currentPlayer === 'O') {
                 computerMove();
             }
@@ -425,6 +468,18 @@
             hardBtn.classList.add('active-mode');
             easyBtn.classList.remove('active-mode');
             mediumBtn.classList.remove('active-mode');
+            extremeBtn.classList.remove('active-mode');
+            if (isPlayerVsComputer && currentPlayer === 'O') {
+                computerMove();
+            }
+        });
+
+        extremeBtn.addEventListener('click', () => {
+            difficulty = 'extreme';
+            extremeBtn.classList.add('active-mode');
+            easyBtn.classList.remove('active-mode');
+            mediumBtn.classList.remove('active-mode');
+            hardBtn.classList.remove('active-mode');
             if (isPlayerVsComputer && currentPlayer === 'O') {
                 computerMove();
             }
