@@ -1,4 +1,3 @@
- // Start of Selection
 <!DOCTYPE html>
 <html lang="en">
 
@@ -95,9 +94,8 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
-    <script src="./gameLogic.js"></script>
+
     <script>
-        // Use gameLogic from gameLogic.js directly without redefining it
         const boardElement = document.querySelector('.board');
         const messageElement = document.getElementById('message');
         const resetBtn = document.getElementById('resetBtn');
@@ -119,33 +117,283 @@
         let socket = io();
         let gameHistory = [];
 
-        // Add reset event listener
-        resetBtn.addEventListener('click', gameLogic.resetBoard);
+        function displayBoard(board) {
+            boardElement.innerHTML = '';
+            board.forEach((cell, index) => {
+                const cellElement = document.createElement('div');
+                cellElement.classList.add('cell');
+                cellElement.textContent = cell;
+                cellElement.addEventListener('click', () => handleClick(index));
+                boardElement.appendChild(cellElement);
 
-        // Add mode selection event listeners
+                if (cell === 'X') {
+                    cellElement.classList.add('x');
+                } else if (cell === 'O') {
+                    cellElement.classList.add('o');
+                }
+            });
+        }
+
+        function checkWin(board) {
+            const winPatterns = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6]
+            ];
+
+            for (const pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return pattern; // Return winning pattern
+                }
+            }
+
+            return null; // No winner yet
+        }
+
+        function isDraw(board) {
+            return board.every(cell => cell === 'X' || cell === 'O');
+        }
+
+        function resetBoard() {
+            board = Array.from({
+                length: 9
+            }, (_, i) => (i + 1).toString());
+            currentPlayer = 'X';
+            messageElement.textContent = '';
+            displayBoard(board);
+            gameHistory = [];
+            gameHistoryElement.innerHTML = '';
+            if (isPlayerVsComputer && currentPlayer === 'O') {
+                computerMove();
+            }
+        }
+
+        function handleClick(index) {
+            if (board[index] !== 'X' && board[index] !== 'O' && !checkWin(board)) {
+                board[index] = currentPlayer;
+                displayBoard(board);
+                socket.emit('playerMove', {
+                    board,
+                    currentPlayer
+                });
+
+                const winningPattern = checkWin(board);
+                if (winningPattern) {
+                    highlightWinningCells(winningPattern);
+                    messageElement.textContent = `${currentPlayer} wins!`;
+                    socket.emit("gameOver", `${currentPlayer} wins!`)
+                    playSound('gameOver');
+                    addToGameHistory(`${currentPlayer} wins!`);
+                    return;
+                }
+
+                if (isDraw(board)) {
+                    messageElement.textContent = 'It\'s a draw!';
+                    socket.emit("gameOver", 'It\'s a draw!');
+                    playSound('gameOver');
+                    addToGameHistory('It\'s a draw!');
+                    return;
+                }
+
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+
+                if (isPlayerVsComputer && currentPlayer === 'O') {
+                    computerMove();
+                }
+            }
+        }
+
+        function computerMove() {
+            setTimeout(() => {
+                let bestMove;
+
+                if (difficulty === "easy") {
+                    bestMove = getRandomAvailableMove();
+                } else if (difficulty === "medium") {
+                    bestMove = getMediumDifficultyMove();
+                } else {
+                    bestMove = getMinimaxMove(board, currentPlayer);
+                }
+
+                board[bestMove] = currentPlayer;
+                displayBoard(board);
+                socket.emit('playerMove', {
+                    board,
+                    currentPlayer
+                });
+
+                const winningPattern = checkWin(board);
+                if (winningPattern) {
+                    highlightWinningCells(winningPattern);
+                    messageElement.textContent = `${currentPlayer} wins!`;
+                    socket.emit("gameOver", `${currentPlayer} wins!`)
+                    playSound('gameOver');
+                    addToGameHistory(`${currentPlayer} wins!`);
+                    return;
+                }
+
+                if (isDraw(board)) {
+                    messageElement.textContent = 'It\'s a draw!';
+                    socket.emit("gameOver", 'It\'s a draw!');
+                    playSound('gameOver');
+                    addToGameHistory('It\'s a draw!');
+                    return;
+                }
+
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            }, 500);
+        }
+
+        function getRandomAvailableMove() {
+            const availableMoves = board.filter(cell => cell !== 'X' && cell !== 'O');
+            return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+        }
+
+        function getMediumDifficultyMove() {
+            const availableMoves = board.map((cell, index) => cell !== 'X' && cell !== 'O' ? index : null).filter(index => index !== null);
+            const winningMove = availableMoves.find(index => {
+                const tempBoard = [...board];
+                tempBoard[index] = currentPlayer;
+                return checkWin(tempBoard);
+            });
+            if (winningMove !== undefined) {
+                return winningMove;
+            }
+            const blockingMove = availableMoves.find(index => {
+                const tempBoard = [...board];
+                tempBoard[index] = currentPlayer === 'X' ? 'O' : 'X';
+                return checkWin(tempBoard);
+            });
+
+            if (blockingMove !== undefined) {
+                return blockingMove;
+            }
+            return getRandomAvailableMove();
+        }
+
+        function getMinimaxMove(board, player) {
+            const availableMoves = board.map((cell, index) => cell !== 'X' && cell !== 'O' ? index : null).filter(index => index !== null);
+
+            let bestScore = -Infinity;
+            let bestMove;
+
+            for (let i = 0; i < availableMoves.length; i++) {
+                const move = availableMoves[i];
+                board[move] = player;
+                const score = minimax(board, 0, false);
+                board[move] = (move + 1).toString();
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                }
+            }
+
+            return bestMove;
+        }
+
+        function minimax(board, depth, isMaximizing) {
+            const winner = checkWin(board);
+
+            if (winner) {
+                return winner[0] === 'O' ? 10 - depth : depth - 10;
+            }
+
+            if (isDraw(board)) {
+                return 0;
+            }
+
+            const availableMoves = board.map((cell, index) => cell !== 'X' && cell !== 'O' ? index : null).filter(index => index !== null);
+
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < availableMoves.length; i++) {
+                    const move = availableMoves[i];
+                    board[move] = 'O';
+                    const score = minimax(board, depth + 1, false);
+                    board[move] = (move + 1).toString();
+                    bestScore = Math.max(score, bestScore);
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < availableMoves.length; i++) {
+                    const move = availableMoves[i];
+                    board[move] = 'X';
+                    const score = minimax(board, depth + 1, true);
+                    board[move] = (move + 1).toString();
+                    bestScore = Math.min(score, bestScore);
+                }
+                return bestScore;
+            }
+        }
+
+        function highlightWinningCells(pattern) {
+            pattern.forEach(index => {
+                boardElement.children[index].classList.add('highlight');
+            });
+        }
+
+        function playSound(sound) {
+            let audio;
+            switch (sound) {
+                case 'move':
+                    audio = new Audio('https://opengameart.org/sites/default/files/select_0.wav'); // Replace with your move sound
+                    break;
+                case 'gameOver':
+                    audio = new Audio('https://opengameart.org/sites/default/files/Buzzer3.wav'); // Replace with your game over sound
+                    break;
+            }
+            audio.play();
+        }
+
+        function addToGameHistory(result) {
+            gameHistory.push(result);
+            updateGameHistoryDisplay();
+        }
+
+        function updateGameHistoryDisplay() {
+            gameHistoryElement.innerHTML = '';
+            gameHistory.forEach(result => {
+                const listItem = document.createElement('li');
+                listItem.textContent = result;
+                gameHistoryElement.appendChild(listItem);
+            });
+        }
+
+        resetBtn.addEventListener('click', resetBoard);
+
         playerVsPlayerBtn.addEventListener('click', () => {
             isPlayerVsComputer = false;
-            gameLogic.resetBoard();
+            resetBoard();
             playerVsPlayerBtn.classList.add('active-mode');
             playerVsComputerBtn.classList.remove('active-mode');
         });
 
         playerVsComputerBtn.addEventListener('click', () => {
             isPlayerVsComputer = true;
-            gameLogic.resetBoard();
+            resetBoard();
             playerVsComputerBtn.classList.add('active-mode');
             playerVsPlayerBtn.classList.remove('active-mode');
+            if (currentPlayer === 'O') {
+                computerMove();
+            }
         });
 
-        // Add difficulty selection event listeners
         easyBtn.addEventListener('click', () => {
             difficulty = 'easy';
             easyBtn.classList.add('active-mode');
             mediumBtn.classList.remove('active-mode');
             hardBtn.classList.remove('active-mode');
-            isPlayerVsComputer = false;
-            playerVsComputerBtn.classList.remove('active-mode');
-            playerVsPlayerBtn.classList.add('active-mode');
+            if (isPlayerVsComputer && currentPlayer === 'O') {
+                computerMove();
+            }
         });
 
         mediumBtn.addEventListener('click', () => {
@@ -153,9 +401,9 @@
             mediumBtn.classList.add('active-mode');
             easyBtn.classList.remove('active-mode');
             hardBtn.classList.remove('active-mode');
-            isPlayerVsComputer = false;
-            playerVsComputerBtn.classList.remove('active-mode');
-            playerVsPlayerBtn.classList.add('active-mode');
+            if (isPlayerVsComputer && currentPlayer === 'O') {
+                computerMove();
+            }
         });
 
         hardBtn.addEventListener('click', () => {
@@ -163,12 +411,11 @@
             hardBtn.classList.add('active-mode');
             easyBtn.classList.remove('active-mode');
             mediumBtn.classList.remove('active-mode');
-            isPlayerVsComputer = false;
-            playerVsComputerBtn.classList.remove('active-mode');
-            playerVsPlayerBtn.classList.add('active-mode');
+            if (isPlayerVsComputer && currentPlayer === 'O') {
+                computerMove();
+            }
         });
 
-        // Add theme selection event listeners
         darkModeBtn.addEventListener('click', () => {
             document.body.classList.add('bg-gray-900', 'text-white');
             document.body.classList.remove('bg-white', 'text-black');
@@ -179,9 +426,6 @@
             document.body.classList.remove('bg-gray-900', 'text-white');
         });
 
-        // Initial display
-        gameLogic.displayBoard(board);
-
         // Socket event listeners
         socket.on('playerMove', ({
             board: newBoard,
@@ -189,32 +433,43 @@
         }) => {
             board = newBoard;
             currentPlayer = newCurrentPlayer;
-            gameLogic.displayBoard(board);
+            displayBoard(board);
         });
 
         socket.on('resetBoard', () => {
-            gameLogic.resetBoard();
+            resetBoard();
         });
 
         socket.on('gameOver', (message) => {
             messageElement.textContent = message;
-            gameLogic.playSound('gameOver');
+            playSound('gameOver');
         });
 
-        // Highlight winning cells and play sound effects are handled within gameLogic.js
 
-        // Testing functions
-        const {
-            testCheckWin,
-            testIsDraw
-        } = testLogic;
+        displayBoard(board);
+
+        // Add test logic if needed
+        const testLogic = {
+            testCheckWin: () => {
+                // Test cases for checkWin function
+                console.assert(checkWin(['X', 'X', 'X', 4, 5, 6, 7, 8, 9]) !== null, 'Horizontal win not detected');
+                console.assert(checkWin([1, 2, 3, 'O', 'O', 'O', 7, 8, 9]) !== null, 'Horizontal win not detected');
+                console.assert(checkWin([1, 2, 3, 4, 5, 6, 'X', 'X', 'X']) !== null, 'Horizontal win not detected');
+            },
+            testIsDraw: () => {
+                // Test cases for isDraw function
+                console.assert(isDraw(['X', 'O', 'X', 'O', 'X', 'X', 'O', 'X', 'O']) === true, 'Draw not detected');
+                console.assert(isDraw(['X', 'O', 'X', 'O', 'X', 'X', 'O', 'X', 9]) === false, 'Incorrect draw detection');
+            }
+        };
 
         // Run tests
-        testCheckWin();
-        testIsDraw();
+        testLogic.testCheckWin();
+        testLogic.testIsDraw();
+
+        // Set difficulty to easy by default
+        easyBtn.classList.add('active-mode');
     </script>
 </body>
-
-</html>
 
 </html>
