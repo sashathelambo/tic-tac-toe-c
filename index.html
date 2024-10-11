@@ -64,9 +64,88 @@
             <li>Simple and intuitive controls.</li>
         </ul>
     </div>
+    <div id="output" class="bg-gray-800 p-4 rounded-lg shadow-lg mt-4 max-w-lg text-left text-gray-300"></div>
     <footer class="mt-auto text-gray-500">
         <p>&copy; 2024 Tic-Tac-Toe Game. All rights reserved.</p>
     </footer>
+
+    <script src="https://felixhao28.github.io/JSCPP/dist/JSCPP.es5.min.js"></script>
+    <script>
+        const cppCode = `
+        #include <iostream>
+        #include <vector>
+        #include <string>
+        using namespace std;
+
+        void printBoard(const vector<string>& board) {
+            for (int i = 0; i < 9; i++) {
+                cout << board[i] << ((i % 3 == 2) ? "\n" : " | ");
+                if (i % 3 == 2 && i != 8) cout << "---------\n";
+            }
+        }
+
+        bool checkWin(const vector<string>& board, const string& player) {
+            const int winPatterns[8][3] = {
+                {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, // rows
+                {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, // columns
+                {0, 4, 8}, {2, 4, 6}             // diagonals
+            };
+            for (const auto& pattern : winPatterns) {
+                if (board[pattern[0]] == player && board[pattern[1]] == player && board[pattern[2]] == player) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        bool isBoardFull(const vector<string>& board) {
+            for (const auto& cell : board) {
+                if (cell == " ") return false;
+            }
+            return true;
+        }
+
+        int main() {
+            vector<string> board(9, " ");
+            string currentPlayer = "X";
+            while (true) {
+                printBoard(board);
+                int move;
+                cout << "Player " << currentPlayer << ", enter your move (1-9): ";
+                cin >> move;
+                move--; // Convert to 0-based index
+                if (move < 0 || move >= 9 || board[move] != " ") {
+                    cout << "Invalid move. Try again.\n";
+                    continue;
+                }
+                board[move] = currentPlayer;
+                if (checkWin(board, currentPlayer)) {
+                    printBoard(board);
+                    cout << "Player " << currentPlayer << " wins!\n";
+                    break;
+                }
+                if (isBoardFull(board)) {
+                    printBoard(board);
+                    cout << "It's a draw!\n";
+                    break;
+                }
+                currentPlayer = (currentPlayer == "X") ? "O" : "X";
+            }
+            return 0;
+        }
+        `;
+
+        const outputElement = document.getElementById('output');
+        const config = {
+            stdio: {
+                write: function(s) {
+                    outputElement.innerHTML += s + '<br>';
+                }
+            }
+        };
+
+        JSCPP.run(cppCode, '', config);
+    </script>
 </body>
 
 </html>
