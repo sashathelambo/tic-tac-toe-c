@@ -64,29 +64,18 @@
         button {
             transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
             background-color: #007bff;
-            /* Default blue color */
         }
         
         button:hover {
             transform: scale(1.05);
         }
         
-        .light-mode-button {
-            background-color: #f0f0f0;
-            color: #333;
-        }
-        
-        .light-mode-button:hover {
-            background-color: #e0e0e0;
-        }
-        
-        .light-mode-button:active {
-            box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.2);
-        }
-        
         .clicked {
             background-color: #ff0000;
-            /* Red color when clicked */
+        }
+        
+        #scoreBoard p {
+            text-align: center;
         }
     </style>
 </head>
@@ -96,6 +85,19 @@
     <div class="instructions bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg text-center">
         <h2 class="text-2xl font-semibold text-blue-400 mb-4">Instructions</h2>
         <p class="mb-4">This is a web-based Tic-Tac-Toe game. Click on a cell to make a move. The first player to align three of their marks in a row, column, or diagonal wins!</p>
+    </div>
+    <div class="mt-4">
+        <h2 class="text-2xl font-semibold text-blue-400 mb-4 text-center">Scores</h2>
+        <div id="scoreBoard" class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg text-center">
+            <p id="scoreX" class="text-xl">Player X: 0</p>
+            <p id="scoreO" class="text-xl">Player O: 0</p>
+        </div>
+    </div>
+    <div class="mt-4 flex items-center">
+        <button id="chooseXBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Choose X</button>
+        <button id="chooseOBtn" class="bg-red-500 text-white px-4 py-2 rounded">Choose O</button>
+        <div id="chosenSymbol" class="ml-4 text-xl"></div>
+        <div id="symbolIndicator" class="ml-4 text-2xl"></div>
     </div>
     <div class="board" role="grid" aria-label="Tic-Tac-Toe Board"></div>
     <div id="message" class="text-xl mt-4" aria-live="polite"></div>
@@ -111,18 +113,12 @@
         <button id="extremeBtn" class="bg-indigo-500 text-white px-4 py-2 rounded">Extreme</button>
     </div>
     <div class="mt-4">
-        <button id="darkModeBtn" class="bg-gray-700 text-white px-4 py-2 rounded">Dark Mode</button>
-        <button id="lightModeBtn" class="bg-gray-300 text-black px-4 py-2 rounded">Light Mode</button>
-    </div>
-    <div class="mt-4">
         <h2 class="text-2xl font-semibold text-blue-400 mb-4">Game History</h2>
         <ul id="gameHistory" class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg text-center"></ul>
     </div>
     <footer class="mt-auto text-gray-500">
         <p>&copy; 2024 Tic-Tac-Toe Game. All rights reserved.</p>
     </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 
     <script>
         const boardElement = document.querySelector('.board');
@@ -134,18 +130,22 @@
         const mediumBtn = document.getElementById('mediumBtn');
         const hardBtn = document.getElementById('hardBtn');
         const extremeBtn = document.getElementById('extremeBtn');
-        const darkModeBtn = document.getElementById('darkModeBtn');
-        const lightModeBtn = document.getElementById('lightModeBtn');
         const gameHistoryElement = document.getElementById('gameHistory');
+        const chooseXBtn = document.getElementById('chooseXBtn');
+        const chooseOBtn = document.getElementById('chooseOBtn');
+        const chosenSymbolElement = document.getElementById('chosenSymbol');
+        const symbolIndicator = document.getElementById('symbolIndicator');
 
         let board = Array.from({
             length: 9
         }, (_, i) => (i + 1).toString());
-        let currentPlayer = 'X';
+        let currentPlayer = '';
+        let computerPlayer = '';
         let isPlayerVsComputer = false;
         let difficulty = 'medium';
-        let socket = io();
         let gameHistory = [];
+        let scoreX = 0;
+        let scoreO = 0;
 
         function displayBoard(board) {
             boardElement.innerHTML = '';
@@ -198,92 +198,108 @@
             board = Array.from({
                 length: 9
             }, (_, i) => (i + 1).toString());
-            currentPlayer = 'X';
+            currentPlayer = '';
+            computerPlayer = '';
             messageElement.textContent = '';
             displayBoard(board);
             gameHistory = [];
             gameHistoryElement.innerHTML = '';
-            if (isPlayerVsComputer && currentPlayer === 'O') {
-                computerMove();
+            chooseXBtn.disabled = false;
+            chooseOBtn.disabled = false;
+            chosenSymbolElement.textContent = '';
+            symbolIndicator.textContent = '';
+        }
+
+        function setPlayerChoice(choice) {
+            currentPlayer = choice;
+            computerPlayer = choice === 'X' ? 'O' : 'X';
+            chooseXBtn.disabled = true;
+            chooseOBtn.disabled = true;
+            chosenSymbolElement.textContent = `Chosen: ${choice}`;
+            symbolIndicator.textContent = choice;
+
+            // If it's player vs computer and the computer is 'X', make the first move
+            if (isPlayerVsComputer && computerPlayer === 'X') {
+                setTimeout(() => {
+                    computerMove();
+                }, 500); // Delay to simulate thinking time
             }
         }
 
         function handleClick(index) {
+            if (!currentPlayer) {
+                messageElement.textContent = 'Please choose X or O to start the game.';
+                return;
+            }
             if (!isCellOccupied(index) && !checkWin(board)) {
                 board[index] = currentPlayer;
+                console.log(`Player placed ${currentPlayer} at position ${index + 1}`);
                 displayBoard(board);
-                socket.emit('playerMove', {
-                    board,
-                    currentPlayer
-                });
 
                 const winningPattern = checkWin(board);
                 if (winningPattern) {
                     highlightWinningCells(winningPattern);
                     messageElement.textContent = `${currentPlayer} wins!`;
-                    socket.emit("gameOver", `${currentPlayer} wins!`);
-                    playSound('gameOver');
                     addToGameHistory(`${currentPlayer} wins!`);
+                    updateScore(currentPlayer); // Update score
                     return;
                 }
 
                 if (isDraw(board)) {
                     messageElement.textContent = 'It\'s a draw!';
-                    socket.emit("gameOver", 'It\'s a draw!');
-                    playSound('gameOver');
                     addToGameHistory('It\'s a draw!');
                     return;
                 }
 
-                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                // Switch current player only if it's player vs player
+                if (!isPlayerVsComputer) {
+                    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                }
 
-                if (isPlayerVsComputer && currentPlayer === 'O') {
-                    computerMove();
+                if (isPlayerVsComputer && currentPlayer === computerPlayer) {
+                    setTimeout(() => {
+                        computerMove();
+                    }, 500); // Delay to simulate thinking time
                 }
             }
         }
 
         function computerMove() {
-            setTimeout(() => {
-                let bestMove;
+            let bestMove;
 
-                if (difficulty === "easy") {
-                    bestMove = getRandomAvailableMove();
-                } else if (difficulty === "medium") {
-                    bestMove = getMediumDifficultyMove();
-                } else if (difficulty === "hard") {
-                    bestMove = getHardDifficultyMove();
-                } else if (difficulty === "extreme") {
-                    bestMove = getExtremeDifficultyMove();
-                }
+            if (difficulty === "easy") {
+                bestMove = getRandomAvailableMove();
+            } else if (difficulty === "medium") {
+                bestMove = getMediumDifficultyMove();
+            } else if (difficulty === "hard") {
+                bestMove = getHardDifficultyMove();
+            } else if (difficulty === "extreme") {
+                bestMove = getExtremeDifficultyMove();
+            }
 
-                board[bestMove] = currentPlayer;
-                displayBoard(board);
-                socket.emit('playerMove', {
-                    board,
-                    currentPlayer
-                });
+            board[bestMove] = computerPlayer; // Ensure the computer places its own symbol
+            console.log(`Computer placed ${computerPlayer} at position ${bestMove + 1}`);
+            displayBoard(board);
 
-                const winningPattern = checkWin(board);
-                if (winningPattern) {
-                    highlightWinningCells(winningPattern);
-                    messageElement.textContent = `${currentPlayer} wins!`;
-                    socket.emit("gameOver", `${currentPlayer} wins!`);
-                    playSound('gameOver');
-                    addToGameHistory(`${currentPlayer} wins!`);
-                    return;
-                }
+            const winningPattern = checkWin(board);
+            if (winningPattern) {
+                highlightWinningCells(winningPattern);
+                messageElement.textContent = `${computerPlayer} wins!`;
+                addToGameHistory(`${computerPlayer} wins!`);
+                updateScore(computerPlayer); // Update score
+                return;
+            }
 
-                if (isDraw(board)) {
-                    messageElement.textContent = 'It\'s a draw!';
-                    socket.emit("gameOver", 'It\'s a draw!');
-                    playSound('gameOver');
-                    addToGameHistory('It\'s a draw!');
-                    return;
-                }
+            if (isDraw(board)) {
+                messageElement.textContent = 'It\'s a draw!';
+                addToGameHistory('It\'s a draw!');
+                return;
+            }
 
+            // Switch current player only if it's player vs computer
+            if (isPlayerVsComputer) {
                 currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-            }, 500);
+            }
         }
 
         function getRandomAvailableMove() {
@@ -301,7 +317,7 @@
 
             const winningMove = availableMoves.find(index => {
                 const tempBoard = [...board];
-                tempBoard[index] = currentPlayer;
+                tempBoard[index] = computerPlayer;
                 return checkWin(tempBoard);
             });
             if (winningMove !== undefined) {
@@ -309,7 +325,7 @@
             }
             const blockingMove = availableMoves.find(index => {
                 const tempBoard = [...board];
-                tempBoard[index] = currentPlayer === 'X' ? 'O' : 'X';
+                tempBoard[index] = currentPlayer;
                 return checkWin(tempBoard);
             });
 
@@ -320,27 +336,23 @@
         }
 
         function getHardDifficultyMove() {
-            // Enhanced minimax with depth consideration
-            return getMinimaxMove(board, currentPlayer);
+            return getMinimaxMove(board, computerPlayer);
         }
 
         function getExtremeDifficultyMove() {
-            // AI will always win if possible by prioritizing winning moves aggressively
             const availableMoves = board
                 .map((cell, index) => (!isCellOccupied(index) ? index : null))
                 .filter(index => index !== null);
 
-            // First, check if AI can win in the next move
             for (let move of availableMoves) {
                 const tempBoard = [...board];
-                tempBoard[move] = currentPlayer;
+                tempBoard[move] = computerPlayer;
                 if (checkWin(tempBoard)) {
                     return move;
                 }
             }
 
-            // Block opponent's winning move
-            const opponent = currentPlayer === 'X' ? 'O' : 'X';
+            const opponent = computerPlayer === 'X' ? 'O' : 'X';
             for (let move of availableMoves) {
                 const tempBoard = [...board];
                 tempBoard[move] = opponent;
@@ -349,8 +361,7 @@
                 }
             }
 
-            // Otherwise, use minimax to choose the best move
-            return getMinimaxMove(board, currentPlayer);
+            return getMinimaxMove(board, computerPlayer);
         }
 
         function getMinimaxMove(board, player) {
@@ -422,21 +433,6 @@
             });
         }
 
-        function playSound(sound) {
-            let audio;
-            switch (sound) {
-                case 'move':
-                    audio = new Audio('https://example.com/move-sound.mp3'); // Replace with a valid URL
-                    break;
-                case 'gameOver':
-                    audio = new Audio('https://example.com/game-over-sound.mp3'); // Replace with a valid URL
-                    break;
-            }
-            audio.play().catch(error => {
-                console.error('Audio playback failed:', error);
-            });
-        }
-
         function addToGameHistory(result) {
             gameHistory.push(result);
             updateGameHistoryDisplay();
@@ -449,6 +445,16 @@
                 listItem.textContent = result;
                 gameHistoryElement.appendChild(listItem);
             });
+        }
+
+        function updateScore(winner) {
+            if (winner === 'X') {
+                scoreX++;
+                document.getElementById('scoreX').textContent = `Player X: ${scoreX}`;
+            } else if (winner === 'O') {
+                scoreO++;
+                document.getElementById('scoreO').textContent = `Player O: ${scoreO}`;
+            }
         }
 
         resetBtn.addEventListener('click', resetBoard);
@@ -465,9 +471,6 @@
             resetBoard();
             playerVsComputerBtn.classList.add('active-mode');
             playerVsPlayerBtn.classList.remove('active-mode');
-            if (currentPlayer === 'O') {
-                computerMove();
-            }
         });
 
         easyBtn.addEventListener('click', () => {
@@ -476,9 +479,6 @@
             mediumBtn.classList.remove('active-mode');
             hardBtn.classList.remove('active-mode');
             extremeBtn.classList.remove('active-mode');
-            if (isPlayerVsComputer && currentPlayer === 'O') {
-                computerMove();
-            }
         });
 
         mediumBtn.addEventListener('click', () => {
@@ -487,9 +487,6 @@
             easyBtn.classList.remove('active-mode');
             hardBtn.classList.remove('active-mode');
             extremeBtn.classList.remove('active-mode');
-            if (isPlayerVsComputer && currentPlayer === 'O') {
-                computerMove();
-            }
         });
 
         hardBtn.addEventListener('click', () => {
@@ -498,9 +495,6 @@
             easyBtn.classList.remove('active-mode');
             mediumBtn.classList.remove('active-mode');
             extremeBtn.classList.remove('active-mode');
-            if (isPlayerVsComputer && currentPlayer === 'O') {
-                computerMove();
-            }
         });
 
         extremeBtn.addEventListener('click', () => {
@@ -509,30 +503,8 @@
             easyBtn.classList.remove('active-mode');
             mediumBtn.classList.remove('active-mode');
             hardBtn.classList.remove('active-mode');
-            if (isPlayerVsComputer && currentPlayer === 'O') {
-                computerMove();
-            }
         });
 
-        darkModeBtn.addEventListener('click', () => {
-            document.body.classList.add('bg-gray-900', 'text-white');
-            document.body.classList.remove('bg-white', 'text-black');
-            mediumBtn.classList.add('bg-orange-500', 'text-white');
-        });
-
-        lightModeBtn.addEventListener('click', () => {
-            document.body.classList.add('bg-white', 'text-black');
-            document.body.classList.remove('bg-gray-900', 'text-white');
-
-            buttons.forEach(button => {
-                button.classList.remove('text-white', 'clicked');
-                button.classList.add('text-black', 'light-mode-button');
-            });
-
-            mediumBtn.classList.add('bg-orange-500', 'text-black');
-        });
-
-        // Socket event listeners
         socket.on('playerMove', ({
             board: newBoard,
             currentPlayer: newCurrentPlayer
@@ -553,7 +525,6 @@
 
         function toggleButtonColor(button) {
             if (button.id !== 'resetBtn') {
-                // Toggle 'clicked' class on the current button
                 button.classList.toggle('clicked');
             }
         }
@@ -567,27 +538,45 @@
 
         displayBoard(board);
 
-        // Add test logic if needed
-        const testLogic = {
-            testCheckWin: () => {
-                // Test cases for checkWin function
-                console.assert(checkWin(['X', 'X', 'X', 4, 5, 6, 7, 8, 9]) !== null, 'Horizontal win not detected');
-                console.assert(checkWin([1, 2, 3, 'O', 'O', 'O', 7, 8, 9]) !== null, 'Horizontal win not detected');
-                console.assert(checkWin([1, 2, 3, 4, 5, 6, 'X', 'X', 'X']) !== null, 'Horizontal win not detected');
-            },
-            testIsDraw: () => {
-                // Test cases for isDraw function
-                console.assert(isDraw(['X', 'O', 'X', 'O', 'X', 'X', 'O', 'X', 'O']) === true, 'Draw not detected');
-                console.assert(isDraw(['X', 'O', 'X', 'O', 'X', 'X', 'O', 'X', 9]) === false, 'Incorrect draw detection');
-            }
-        };
+        function testCheckWin() {
+            console.assert(checkWin(['X', 'X', 'X', 4, 5, 6, 7, 8, 9]) !== null, 'Test failed: Horizontal win not detected');
+            console.assert(checkWin([1, 2, 3, 'O', 'O', 'O', 7, 8, 9]) !== null, 'Test failed: Horizontal win not detected');
+            console.assert(checkWin([1, 2, 3, 4, 5, 6, 'X', 'X', 'X']) !== null, 'Test failed: Horizontal win not detected');
+            console.assert(checkWin(['X', 2, 3, 'X', 5, 6, 'X', 8, 9]) !== null, 'Test failed: Vertical win not detected');
+            console.assert(checkWin([1, 'O', 3, 4, 'O', 6, 7, 'O', 9]) !== null, 'Test failed: Vertical win not detected');
+            console.assert(checkWin(['X', 2, 3, 4, 'X', 6, 7, 8, 'X']) !== null, 'Test failed: Diagonal win not detected');
+            console.assert(checkWin([1, 2, 'O', 4, 'O', 6, 'O', 8, 9]) !== null, 'Test failed: Diagonal win not detected');
+        }
 
-        // Run tests
-        testLogic.testCheckWin();
-        testLogic.testIsDraw();
+        function testIsDraw() {
+            console.assert(isDraw(['X', 'O', 'X', 'O', 'X', 'X', 'O', 'X', 'O']) === true, 'Test failed: Draw not detected');
+            console.assert(isDraw(['X', 'O', 'X', 'O', 'X', 'X', 'O', 'X', 9]) === false, 'Test failed: Incorrect draw detection');
+        }
 
-        // Set difficulty to easy by default
+        function testIsCellOccupied() {
+            console.assert(isCellOccupied(0) === false, 'Test failed: Cell should not be occupied');
+            board[0] = 'X';
+            console.assert(isCellOccupied(0) === true, 'Test failed: Cell should be occupied');
+        }
+
+        function runTests() {
+            testCheckWin();
+            testIsDraw();
+            testIsCellOccupied();
+            console.log('All tests completed.');
+        }
+
+        runTests();
+
         easyBtn.classList.add('active-mode');
+
+        chooseXBtn.addEventListener('click', () => {
+            setPlayerChoice('X');
+        });
+
+        chooseOBtn.addEventListener('click', () => {
+            setPlayerChoice('O');
+        });
     </script>
 </body>
 
