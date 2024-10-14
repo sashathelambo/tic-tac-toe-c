@@ -2,9 +2,10 @@
 #include <vector>
 #include <string>
 #include <conio.h>
-#include <windows.h>
 #include <cstdlib>
 #include <ctime>
+
+//https://gist.github.com/JBlond/2fea43a3049b38287e5e9cefc87b2124
 
 using namespace std;
 
@@ -12,22 +13,28 @@ using namespace std;
 bool exitFlag = false;
 bool returnToMenuFlag = false;
 
-// Function to set console text color
+// Function to set console text color without using windows.h
 void setColor(int color) {
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+    if (color == 12) { // Red for X
+        cout << "\033[31m";
+    } else if (color == 9) { // Blue for O
+        cout << "\033[34m";
+    } else if (color == 7) { // Default color for numbers
+        cout << "\033[0m";
+    } else if (color == 10) { // Green for welcome message
+        cout << "\033[32m";
+    } else if (color == 11) { // Cyan for menu message
+        cout << "\033[36m";
+    } else if (color == 14) { // Yellow for player prompt and draw message
+        cout << "\033[33m";
+    }
 }
 
 // Function to display the Tic-Tac-Toe board
 void displayBoard(const vector<string>& board) {
     for (int i = 0; i < 9; i += 3) {
         for (int j = 0; j < 3; ++j) {
-            if (board[i + j] == "X") {
-                setColor(12); // Red for X
-            } else if (board[i + j] == "O") {
-                setColor(9); // Blue for O
-            } else {
-                setColor(7); // Default color for numbers
-            }
+            setColor(board[i + j] == "X" ? 12 : board[i + j] == "O" ? 9 : 7);
             cout << board[i + j];
             setColor(7); // Reset to default color
             if (j < 2) cout << " | ";
