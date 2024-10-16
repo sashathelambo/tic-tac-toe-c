@@ -1,5 +1,10 @@
 {
   "dependencies": {
-    "JSCPP": "^2.0.9"
+    "express": "^4.21.1",
+    "http": "^0.0.1-security",
+    "JSCPP": "^2.0.9",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.7",
+    "socket.io": "^4.8.0"
   }
 }
