@@ -5,65 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tic Tac Toe</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-            flex-direction: column;
-        }
-        
-        .board {
-            display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-template-rows: repeat(3, 100px);
-            gap: 5px;
-        }
-        
-        .cell {
-            width: 100px;
-            height: 100px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2em;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            cursor: pointer;
-        }
-        
-        .cell.x {
-            color: red;
-        }
-        
-        .cell.o {
-            color: blue;
-        }
-        
-        .message {
-            margin-top: 20px;
-            font-size: 1.2em;
-        }
-        
-        .reset-button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 1em;
-            cursor: pointer;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .turn-message {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -119,6 +61,7 @@
 
             if (checkWin()) {
                 messageElement.textContent = `Player ${currentPlayer} wins!`;
+                messageElement.style.textAlign = 'center';
                 gameActive = false;
                 return;
             }
@@ -162,47 +105,50 @@
         #include <vector>
         using namespace std;
 
-        vector<vector<int>> winningConditions = {
-            {0, 1, 2},
-            {3, 4, 5},
-            {6, 7, 8},
-            {0, 3, 6},
-            {1, 4, 7},
-            {2, 5, 8},
-            {0, 4, 8},
-            {2, 4, 6}
-        };
+vector<vector<int>> winningConditions = {
+    {0, 1, 2},
+    {3, 4, 5},
+    {6, 7, 8},
+    {0, 3, 6},
+    {1, 4, 7},
+    {2, 5, 8},
+    {0, 4, 8},
+    {2, 4, 6}
+};
 
-        bool checkWin(vector<char> board, char currentPlayer) {
-            for (auto condition : winningConditions) {
-                if (board[condition[0]] == currentPlayer && 
-                    board[condition[1]] == currentPlayer && 
-                    board[condition[2]] == currentPlayer) {
-                    return true;
-                }
-            }
-            return false;
+bool checkWin(vector<char> board, char currentPlayer) {
+    for (auto condition : winningConditions) {
+        if (board[condition[0]] == currentPlayer &&
+            board[condition[1]] == currentPlayer &&
+            board[condition[2]] == currentPlayer) {
+            return true;
         }
+    }
+    return false;
+}
 
-        int main() {
-            cout << "Welcome to Tic Tac Toe!" << endl;
-            vector<char> board = {'', '', '', '', 'X', '', '', '', ''};
-            char currentPlayer = 'X';
-            bool gameActive = true;
+int main() {
+    cout << "Welcome to Tic Tac Toe!" << endl;
+    vector<char> board = {
+        ' ', ' ', ' ',
+        ' ', 'X', ' ',
+        ' ', ' ', ' '
+    };
+    char currentPlayer = 'X';
+    bool gameActive = true;
 
-            // Simulate a move
-            board[4] = currentPlayer;
+    // Simulate a move
+    board[4] = currentPlayer;
 
-            if (checkWin(board, currentPlayer)) {
-                cout << "Player " << currentPlayer << " wins!" << endl;
-                gameActive = false;
-            } else {
-                cout << "No winner yet." << endl;
-            }
+    if (checkWin(board, currentPlayer)) {
+        cout << "Player " << currentPlayer << " wins!" << endl;
+        gameActive = false;
+    } else {
+        cout << "No winner yet." << endl;
+    }
 
-            return 0;
-        }
-        `;
+    return 0;
+}`;
 
         const result = JSCPP.run(cppCode);
         console.log(result);
