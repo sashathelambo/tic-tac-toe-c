@@ -1,8 +1,11 @@
 {
-    "files.associations": {
-        "*.java": "java",
-        "*.cpp": "cpp",
-        "*.ccp": "cpp",
-        "algorithm": "cpp"
-    }
+  "files.associations": {
+    "*.embeddedhtml": "html",
+    "*.java": "java",
+    "*.cpp": "cpp",
+    "*.ccp": "cpp",
+    "algorithm": "cpp",
+    "ostream": "cpp",
+    "iostream": "cpp"
+  }
 }
