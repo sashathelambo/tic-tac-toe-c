@@ -1,53 +1,79 @@
-* {
-    margin: 0;
-    padding: 0;
-}
-
 body {
-    background-color: rgb(99, 96, 96);
+    font-family: 'Courier New', Courier, monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #e0e0e0;
+    flex-direction: column;
+    background-size: cover;
+}
+
+.board {
     display: grid;
-    place-items: center;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 5px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 2px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
-h1 {
-    margin: 50px 0 50px 0;
-    font-size: 3rem;
-}
-
-input {
-    margin-bottom: 20px;
-    padding: 5px;
-    font-size: 1.2rem;
-}
-
-button {
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-}
-
-img {
-    width: 30px;
-}
-
-#cont {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    border: 2px solid red;
-    /* height: 180px; */
-    /* width: 50vh; */
-    /* height: 50vh; */
-}
-
-.btn {
-    font-size: 2rem;
+.cell {
     width: 100px;
     height: 100px;
-    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    background-color: #f0e68c;
+    border: 2px solid #8b8b8b;
     cursor: pointer;
-    margin: 0;
-    background-color: rgb(78, 79, 80);
+    transition: background-color 0.3s;
 }
 
-.btn:hover {
-    background-color: rgb(45, 46, 47);
+.cell:hover {
+    background-color: #dcdcdc;
+}
+
+.cell.x {
+    color: #ff4500;
+}
+
+.cell.o {
+    color: #1e90ff;
+}
+
+.message {
+    margin-top: 20px;
+    font-size: 1.2em;
+    font-family: 'Courier New', Courier, monospace;
+    color: #333;
+    text-shadow: 1px 1px 2px #fff;
+}
+
+.reset-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s;
+}
+
+.reset-button:hover {
+    background-color: #e0e0e0;
+}
+
+.turn-message {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #444;
+    text-shadow: 1px 1px 2px #fff;
 }

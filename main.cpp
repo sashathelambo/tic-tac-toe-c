@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <string>
 #include <conio.h>
@@ -87,7 +88,7 @@ void resetBoard(vector<string>& board) {
 }
 
 // Function to get player input
-int getPlayerInput() {
+int getPlayerInput(const vector<string>& board) {
     while (true) {
         if (_kbhit()) {
             char ch = _getch();
@@ -107,8 +108,14 @@ int getPlayerInput() {
             }
             if (ch >= '1' && ch <= '9') {
                 int position = ch - '0';
-                cout << ch << endl; // Echo the valid input
-                return position;
+                if (!isCellTaken(board, position)) {
+                    cout << ch << endl; // Echo the valid input
+                    return position;
+                } else {
+                    setColor(12); // Red color for error message
+                    cout << "\nCell already taken. Please choose another position: ";
+                    setColor(7); // Reset to default color
+                }
             } else {
                 setColor(12); // Red color for error message
                 cout << "\nInvalid input. Please enter a number between 1 and 9: ";
@@ -152,10 +159,19 @@ void playGame(bool isComputerOpponent) {
             cout << "Player " << (currentPlayer == "X" ? "1 (X)" : "2 (O)") << ", choose a position (1-9): ";
             setColor(7); // Reset to default color
 
+            // Display available cells
+            cout << "Available cells: ";
+            for (int i = 0; i < 9; ++i) {
+                if (board[i] != "X" && board[i] != "O") {
+                    cout << board[i] << " ";
+                }
+            }
+            cout << endl;
+
             if (currentPlayer == "O" && isComputerOpponent) {
                 pos = getComputerInput(board);
             } else {
-                pos = getPlayerInput();
+                pos = getPlayerInput(board);
             }
 
             if (pos == -1) {
