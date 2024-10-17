@@ -15,6 +15,9 @@ using namespace std;
 bool exitFlag = false;
 bool returnToMenuFlag = false;
 
+// Global board
+unique_ptr<vector<string>> board = make_unique<vector<string>>(9);
+
 // Function to set console text color without using windows.h
 void setColor(int color) {
     switch (color) {
@@ -28,11 +31,11 @@ void setColor(int color) {
 }
 
 // Function to display the Tic-Tac-Toe board
-void displayBoard(const vector<string>& board) {
+void displayBoard() {
     for (int i = 0; i < 9; i += 3) {
         for (int j = 0; j < 3; ++j) {
-            setColor(board[i + j] == "X" ? 12 : board[i + j] == "O" ? 9 : 7);
-            cout << board[i + j];
+            setColor((*board)[i + j] == "X" ? 12 : (*board)[i + j] == "O" ? 9 : 7);
+            cout << (*board)[i + j];
             setColor(7); // Reset to default color
             if (j < 2) cout << " | ";
         }
@@ -47,19 +50,19 @@ bool isValidInput(const string& input) {
 }
 
 // Function to check if a cell is already taken
-bool isCellTaken(const vector<string>& board, int pos) {
-    return board[pos - 1] == "X" || board[pos - 1] == "O";
+bool isCellTaken(int pos) {
+    return (*board)[pos - 1] == "X" || (*board)[pos - 1] == "O";
 }
 
 // Function to check if a player has won
-bool checkWin(const vector<string>& board, const string& marker) {
+bool checkWin(const string& marker) {
     int winPatterns[8][3] = {
         {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, // rows
         {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, // columns
         {0, 4, 8}, {2, 4, 6}             // diagonals
     };
     for (const auto& pattern : winPatterns) {
-        if (board[pattern[0]] == marker && board[pattern[1]] == marker && board[pattern[2]] == marker) {
+        if ((*board)[pattern[0]] == marker && (*board)[pattern[1]] == marker && (*board)[pattern[2]] == marker) {
             return true;
         }
     }
@@ -67,8 +70,8 @@ bool checkWin(const vector<string>& board, const string& marker) {
 }
 
 // Function to check if the game is a draw
-bool isDraw(const vector<string>& board) {
-    for (const auto& cell : board) {
+bool isDraw() {
+    for (const auto& cell : *board) {
         if (cell != "X" && cell != "O") {
             return false;
         }
@@ -77,14 +80,14 @@ bool isDraw(const vector<string>& board) {
 }
 
 // Function to reset the board
-void resetBoard(vector<string>& board) {
+void resetBoard() {
     for (int i = 0; i < 9; ++i) {
-        board[i] = to_string(i + 1);
+        (*board)[i] = to_string(i + 1);
     }
 }
 
 // Function to get player input
-int getPlayerInput(const vector<string>& board) {
+int getPlayerInput() {
     while (true) {
         if (_kbhit()) {
             char ch = _getch();
@@ -104,7 +107,7 @@ int getPlayerInput(const vector<string>& board) {
             }
             if (ch >= '1' && ch <= '9') {
                 int position = ch - '0';
-                if (!isCellTaken(board, position)) {
+                if (!isCellTaken(position)) {
                     cout << ch << endl; // Echo the valid input
                     return position;
                 } else {
@@ -122,20 +125,19 @@ int getPlayerInput(const vector<string>& board) {
 }
 
 // Function to get computer input
-int getComputerInput(const vector<string>& board) {
+int getComputerInput() {
     srand(time(0));
     int pos;
     do {
         pos = rand() % 9 + 1;
-    } while (isCellTaken(board, pos));
+    } while (isCellTaken(pos));
     cout << pos << endl; // Echo the computer's move
     return pos;
 }
 
 // Function to play the game
 void playGame(bool isComputerOpponent) {
-    auto board = make_unique<vector<string>>(9);
-    resetBoard(*board);
+    resetBoard();
 
     setColor(10); // Green color for welcome message
     cout << "Welcome to Tic-Tac-Toe! Player 1 is X, Player 2 is O. Let's begin!" << endl;
@@ -143,7 +145,7 @@ void playGame(bool isComputerOpponent) {
     cout << "Press ESC at any time to exit the game." << endl;
     cout << "Press 'M' at any time to return to the menu." << endl;
     setColor(7); // Reset to default color
-    displayBoard(*board);
+    displayBoard();
 
     string currentPlayer = "X";
     while (!exitFlag && !returnToMenuFlag) {
@@ -165,16 +167,16 @@ void playGame(bool isComputerOpponent) {
             cout << endl;
 
             if (currentPlayer == "O" && isComputerOpponent) {
-                pos = getComputerInput(*board);
+                pos = getComputerInput();
             } else {
-                pos = getPlayerInput(*board);
+                pos = getPlayerInput();
             }
 
             if (pos == -1) {
                 break;
             }
 
-            if (isCellTaken(*board, pos)) {
+            if (isCellTaken(pos)) {
                 setColor(12); // Red color for error message
                 cout << "Cell already taken. Please choose another position." << endl;
                 setColor(7); // Reset to default color
@@ -187,16 +189,16 @@ void playGame(bool isComputerOpponent) {
         if (exitFlag || returnToMenuFlag) break;
 
         (*board)[pos - 1] = currentPlayer;
-        displayBoard(*board);
+        displayBoard();
 
-        if (checkWin(*board, currentPlayer)) {
+        if (checkWin(currentPlayer)) {
             setColor(10); // Green color for win message
             cout << "Player " << (currentPlayer == "X" ? "1 (X)" : "2 (O)") << " wins!" << endl;
             setColor(7); // Reset to default color
             break;
         }
 
-        if (isDraw(*board)) {
+        if (isDraw()) {
             setColor(14); // Yellow color for draw message
             cout << "It's a draw!" << endl;
             setColor(7); // Reset to default color
