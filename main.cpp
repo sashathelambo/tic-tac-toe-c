@@ -284,6 +284,9 @@ int showMenu() {
                         returnToMenuFlag = true;
                         break;
                     } else if (playAgain == 27) { // ESC key
+                        setColor(12); // Red color for exit message
+                        cout << "ESC clicked. Exiting the game..." << endl;
+                        setColor(7); // Reset to default color
                         exitFlag = true;
                         break;
                     } else if (playAgain == 'y' || playAgain == 'Y') {
