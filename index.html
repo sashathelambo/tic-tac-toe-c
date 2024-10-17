@@ -7,78 +7,27 @@
     <title>Retro Tic Tac Toe</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        body {
-            background-color: #000000;
-            color: #33ff33;
-            font-family: 'Courier New', Courier, monospace;
-        }
-        .board-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-        .board {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
-            width: 300px;
-            height: 300px;
-            background-color: #33ff33;
-            padding: 5px;
-            border: 3px solid #33ff33;
-        }
-        .cell {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 40px;
-            background-color: #000000;
-            cursor: pointer;
-            border: 2px solid #33ff33;
-        }
-        .cell:hover {
-            background-color: #003300;
-        }
-        .welcome-message, .turn-message {
-            text-shadow: 2px 2px #003300;
-        }
-        .reset-button {
-            background-color: #000000;
-            color: #33ff33;
-            border: 2px solid #33ff33;
-            padding: 10px 20px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .reset-button:hover {
-            background-color: #003300;
-        }
+      
     </style>
 </head>
 
 <body>
-    <div style="text-align: center;">
-        <div class="welcome-message" style="font-size: 25px; margin-bottom: 10px;">Welcome to Retro Tic Tac Toe!</div>
-        <div class="turn-message" id="turnMessage" style="margin-bottom: 20px;">Player X's turn</div>
-        <div class="board-container">
-            <div class="board" id="board">
-                <div class="cell" data-index="0" id="cell-0"></div>
-                <div class="cell" data-index="1" id="cell-1"></div>
-                <div class="cell" data-index="2" id="cell-2"></div>
-                <div class="cell" data-index="3" id="cell-3"></div>
-                <div class="cell" data-index="4" id="cell-4"></div>
-                <div class="cell" data-index="5" id="cell-5"></div>
-                <div class="cell" data-index="6" id="cell-6"></div>
-                <div class="cell" data-index="7" id="cell-7"></div>
-                <div class="cell" data-index="8" id="cell-8"></div>
-            </div>
+    <div class="game-container">
+        <h1 class="welcome-message">Welcome to Retro Tic Tac Toe!</h1>
+        <div class="turn-message" id="turnMessage">Player X's turn</div>
+        <div class="board" id="board">
+            <div class="cell" data-index="0" id="cell-0"></div>
+            <div class="cell" data-index="1" id="cell-1"></div>
+            <div class="cell" data-index="2" id="cell-2"></div>
+            <div class="cell" data-index="3" id="cell-3"></div>
+            <div class="cell" data-index="4" id="cell-4"></div>
+            <div class="cell" data-index="5" id="cell-5"></div>
+            <div class="cell" data-index="6" id="cell-6"></div>
+            <div class="cell" data-index="7" id="cell-7"></div>
+            <div class="cell" data-index="8" id="cell-8"></div>
         </div>
-        <div class="message" id="message" style="margin-top: 20px;"></div>
-        <button class="reset-button" id="resetButton" style="margin-top: 20px;">Reset Board</button>
+        <div class="message" id="message"></div>
+        <button class="reset-button" id="resetButton">Reset Board</button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/jscpp@1.0.0/dist/jscpp.min.js"></script>
