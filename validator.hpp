@@ -6,16 +6,18 @@
 #include <vector>
 #include <iostream>
 
+using namespace std;
+
 class Validator {
 public:
     // Function to check if input is valid
-    static bool isValidInput(const std::string& input) {
-        bool valid = input.length() == 1 && std::isdigit(input[0]) && std::stoi(input) >= 1 && std::stoi(input) <= 9;
+    static bool isValidInput(const string& input) {
+        bool valid = input.length() == 1 && isdigit(input[0]) && stoi(input) >= 1 && stoi(input) <= 9;
         return valid;
     }
 
     // Function to check if a cell is already taken
-    static bool isCellTaken(const std::vector<std::string>& board, int pos) {
+    static bool isCellTaken(const vector<string>& board, int pos) {
         if (pos < 1 || pos > 9) {
             return true; // Consider invalid positions as taken
         }
