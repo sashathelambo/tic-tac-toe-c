@@ -96,6 +96,29 @@ void resetBoard() {
     }
 }
 
+// Abstract base class for player
+class Player {
+public:
+    virtual int getInput() = 0;
+    virtual ~Player() = default;
+};
+
+// Derived class for human player
+class HumanPlayer : public Player {
+public:
+    int getInput() override {
+        return getPlayerInput();
+    }
+};
+
+// Derived class for computer player
+class ComputerPlayer : public Player {
+public:
+    int getInput() override {
+        return getComputerInput();
+    }
+};
+
 // Function to get player input
 int getPlayerInput() {
     while (true) {
@@ -158,6 +181,9 @@ void playGame() {
     displayBoard();
 
     currentPlayer = "X";
+    unique_ptr<Player> player1 = make_unique<HumanPlayer>();
+    unique_ptr<Player> player2 = isComputerOpponent ? make_unique<ComputerPlayer>() : make_unique<HumanPlayer>();
+
     while (!exitFlag && !returnToMenuFlag) {
         bool validMove = false;
 
@@ -175,10 +201,10 @@ void playGame() {
             }
             cout << endl;
 
-            if (currentPlayer == "O" && isComputerOpponent) {
-                playerInput = getComputerInput();
+            if (currentPlayer == "X") {
+                playerInput = player1->getInput();
             } else {
-                playerInput = getPlayerInput();
+                playerInput = player2->getInput();
             }
 
             if (playerInput == -1) {
