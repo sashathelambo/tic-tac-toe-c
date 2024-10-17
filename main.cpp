@@ -93,32 +93,33 @@ int getPlayerInput() {
             char ch = _getch();
             if (ch == 27) { // ESC key
                 exitFlag = true;
-                setColor(12); // Red color for exit message
+                setColor(12);
                 cout << "ESC clicked. Exiting the game..." << endl;
-                setColor(7); // Reset to default color
+                setColor(7);
                 return -1;
             }
             if (ch == 'm' || ch == 'M') { // Menu key
                 returnToMenuFlag = true;
-                setColor(11); // Cyan color for menu message
+                setColor(11);
                 cout << "Menu clicked. Returning to menu..." << endl;
-                setColor(7); // Reset to default color
+                setColor(7);
                 return -1;
             }
-            if (ch >= '1' && ch <= '9') {
-                int position = ch - '0';
+            string input(1, ch);
+            if (Validator::isValidInput(input)) {
+                int position = stoi(input);
                 if (!Validator::isCellTaken(*board, position)) {
                     cout << ch << endl; // Echo the valid input
                     return position;
                 } else {
-                    setColor(12); // Red color for error message
+                    setColor(12);
                     cout << "\nCell already taken. Please choose another position: ";
-                    setColor(7); // Reset to default color
+                    setColor(7);
                 }
             } else {
-                setColor(12); // Red color for error message
+                setColor(12);
                 cout << "\nInvalid input. Please enter a number between 1 and 9: ";
-                setColor(7); // Reset to default color
+                setColor(7);
             }
         }
     }
@@ -153,37 +154,36 @@ void playGame() {
         bool validMove = false;
 
         while (!validMove && !exitFlag && !returnToMenuFlag) {
-            setColor(14); // Yellow color for player prompt
+            setColor(14);
             cout << "Player " << (currentPlayer == "X" ? "1 (X)" : "2 (O)") << ", choose a position (1-9): ";
-            setColor(7); // Reset to default color
+            setColor(7);
 
             // Display available cells
             cout << "Available cells: ";
-            for (const auto& cell : *board) {
-                if (cell != "X" && cell != "O") {
-                    cout << cell << " ";
+            for (int i = 0; i < 9; ++i) {
+                if (!Validator::isCellTaken(*board, i + 1)) {
+                    cout << (i + 1) << " ";
                 }
             }
             cout << endl;
 
-            if (currentPlayer == "X") {
+            if (currentPlayer == "X" || !isComputerOpponent) {
                 playerInput = getPlayerInput();
             } else {
-                playerInput = isComputerOpponent ? getComputerInput() : getPlayerInput();
+                playerInput = getComputerInput();
             }
 
             if (playerInput == -1) {
                 break;
             }
 
-            if (Validator::isCellTaken(*board, playerInput)) {
-                setColor(12); // Red color for error message
+            if (!Validator::isCellTaken(*board, playerInput)) {
+                validMove = true;
+            } else {
+                setColor(12);
                 cout << "Cell already taken. Please choose another position." << endl;
-                setColor(7); // Reset to default color
-                continue;
+                setColor(7);
             }
-
-            validMove = true;
         }
 
         if (exitFlag || returnToMenuFlag) break;
