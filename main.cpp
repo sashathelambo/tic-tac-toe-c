@@ -16,25 +16,19 @@ bool exitFlag = false;
 bool returnToMenuFlag = false;
 
 // Function to set console text color without using windows.h
-int setColor(int color) {
-    if (color == 12) { // Red for X
-        cout << "\033[31m";
-    } else if (color == 9) { // Blue for O
-        cout << "\033[34m";
-    } else if (color == 7) { // Default color for numbers
-        cout << "\033[0m";
-    } else if (color == 10) { // Green for welcome message
-        cout << "\033[32m";
-    } else if (color == 11) { // Cyan for menu message
-        cout << "\033[36m";
-    } else if (color == 14) { // Yellow for player prompt and draw message
-        cout << "\033[33m";
+void setColor(int color) {
+    switch (color) {
+        case 12: cout << "\033[31m"; break; // Red for X
+        case 9: cout << "\033[34m"; break; // Blue for O
+        case 7: cout << "\033[0m"; break; // Default color for numbers
+        case 10: cout << "\033[32m"; break; // Green for welcome message
+        case 11: cout << "\033[36m"; break; // Cyan for menu message
+        case 14: cout << "\033[33m"; break; // Yellow for player prompt and draw message
     }
-    return 0;
 }
 
 // Function to display the Tic-Tac-Toe board
-int displayBoard(const vector<string>& board) {
+void displayBoard(const vector<string>& board) {
     for (int i = 0; i < 9; i += 3) {
         for (int j = 0; j < 3; ++j) {
             setColor(board[i + j] == "X" ? 12 : board[i + j] == "O" ? 9 : 7);
@@ -45,7 +39,6 @@ int displayBoard(const vector<string>& board) {
         cout << endl;
         if (i < 6) cout << "---------" << endl;
     }
-    return 0;
 }
 
 // Function to check if input is valid
@@ -65,8 +58,8 @@ bool checkWin(const vector<string>& board, const string& marker) {
         {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, // columns
         {0, 4, 8}, {2, 4, 6}             // diagonals
     };
-    for (int i = 0; i < 8; i++) {
-        if (board[winPatterns[i][0]] == marker && board[winPatterns[i][1]] == marker && board[winPatterns[i][2]] == marker) {
+    for (const auto& pattern : winPatterns) {
+        if (board[pattern[0]] == marker && board[pattern[1]] == marker && board[pattern[2]] == marker) {
             return true;
         }
     }
@@ -75,8 +68,8 @@ bool checkWin(const vector<string>& board, const string& marker) {
 
 // Function to check if the game is a draw
 bool isDraw(const vector<string>& board) {
-    for (int i = 0; i < 9; i++) {
-        if (board[i] != "X" && board[i] != "O") {
+    for (const auto& cell : board) {
+        if (cell != "X" && cell != "O") {
             return false;
         }
     }
@@ -84,11 +77,10 @@ bool isDraw(const vector<string>& board) {
 }
 
 // Function to reset the board
-int resetBoard(vector<string>& board) {
+void resetBoard(vector<string>& board) {
     for (int i = 0; i < 9; ++i) {
         board[i] = to_string(i + 1);
     }
-    return 0;
 }
 
 // Function to get player input
@@ -141,7 +133,7 @@ int getComputerInput(const vector<string>& board) {
 }
 
 // Function to play the game
-int playGame(bool isComputerOpponent) {
+void playGame(bool isComputerOpponent) {
     auto board = make_unique<vector<string>>(9);
     resetBoard(*board);
 
@@ -165,9 +157,9 @@ int playGame(bool isComputerOpponent) {
 
             // Display available cells
             cout << "Available cells: ";
-            for (int i = 0; i < 9; ++i) {
-                if ((*board)[i] != "X" && (*board)[i] != "O") {
-                    cout << (*board)[i] << " ";
+            for (const auto& cell : *board) {
+                if (cell != "X" && cell != "O") {
+                    cout << cell << " ";
                 }
             }
             cout << endl;
@@ -220,11 +212,10 @@ int playGame(bool isComputerOpponent) {
         setColor(7); // Reset to default color
         _getch(); // Wait for any key press
     }
-    return 0;
 }
 
 // Function to show the menu
-int showMenu() {
+void showMenu() {
     char choice;
     bool isComputerOpponent = false;
 
@@ -242,7 +233,7 @@ int showMenu() {
                 setColor(12); // Red color for exit message
                 cout << "ESC clicked. Exiting the game..." << endl;
                 setColor(7); // Reset to default color
-                return 0;
+                return;
             }
             if (ch == '1') {
                 isComputerOpponent = true;
@@ -255,7 +246,7 @@ int showMenu() {
                 setColor(11); // Cyan color for menu message
                 cout << "Menu clicked. Returning to menu..." << endl;
                 setColor(7); // Reset to default color
-                return 0;
+                return;
             } else {
                 setColor(12); // Red color for error message
                 cout << "Invalid choice. Please enter 1, 2, or M or ESC: ";
@@ -300,7 +291,6 @@ int showMenu() {
             }
         }
     }
-    return 0;
 }
 
 int main() {
