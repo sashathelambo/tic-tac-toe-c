@@ -18,6 +18,16 @@ bool returnToMenuFlag = false;
 // Global board
 unique_ptr<vector<string>> board = make_unique<vector<string>>(9);
 
+// Global variables for player and computer input
+int playerInput;
+int computerInput;
+
+// Global variable for current player
+string currentPlayer;
+
+// Global variable for computer opponent flag
+bool isComputerOpponent;
+
 // Function to set console text color without using windows.h
 void setColor(int color) {
     switch (color) {
@@ -136,7 +146,7 @@ int getComputerInput() {
 }
 
 // Function to play the game
-void playGame(bool isComputerOpponent) {
+void playGame() {
     resetBoard();
 
     setColor(10); // Green color for welcome message
@@ -147,9 +157,8 @@ void playGame(bool isComputerOpponent) {
     setColor(7); // Reset to default color
     displayBoard();
 
-    string currentPlayer = "X";
+    currentPlayer = "X";
     while (!exitFlag && !returnToMenuFlag) {
-        int pos;
         bool validMove = false;
 
         while (!validMove && !exitFlag && !returnToMenuFlag) {
@@ -167,16 +176,16 @@ void playGame(bool isComputerOpponent) {
             cout << endl;
 
             if (currentPlayer == "O" && isComputerOpponent) {
-                pos = getComputerInput();
+                playerInput = getComputerInput();
             } else {
-                pos = getPlayerInput();
+                playerInput = getPlayerInput();
             }
 
-            if (pos == -1) {
+            if (playerInput == -1) {
                 break;
             }
 
-            if (isCellTaken(pos)) {
+            if (isCellTaken(playerInput)) {
                 setColor(12); // Red color for error message
                 cout << "Cell already taken. Please choose another position." << endl;
                 setColor(7); // Reset to default color
@@ -188,7 +197,7 @@ void playGame(bool isComputerOpponent) {
 
         if (exitFlag || returnToMenuFlag) break;
 
-        (*board)[pos - 1] = currentPlayer;
+        (*board)[playerInput - 1] = currentPlayer;
         displayBoard();
 
         if (checkWin(currentPlayer)) {
@@ -219,7 +228,6 @@ void playGame(bool isComputerOpponent) {
 // Function to show the menu
 void showMenu() {
     char choice;
-    bool isComputerOpponent = false;
 
     setColor(11); // Cyan color for the prompt
     cout << "Do you want to play against the computer or another player?" << endl;
@@ -259,7 +267,7 @@ void showMenu() {
 
     while (!exitFlag && !returnToMenuFlag) {
         if (!exitFlag && !returnToMenuFlag) {
-            playGame(isComputerOpponent);
+            playGame();
         }
 
         if (!exitFlag && !returnToMenuFlag) {
