@@ -271,14 +271,29 @@ int showMenu() {
 
         if (!exitFlag && !returnToMenuFlag) {
             setColor(11); // Cyan color for play again prompt
-            cout << "Do you want to play again? (y for yes, n for no, and m for menu, ESS to exit): ";
+            cout << "Do you want to play again? (y for yes, n for no, and m for menu, ESC to exit): ";
             setColor(7); // Reset to default color
             char playAgain;
-            cin >> playAgain;
-            if (playAgain == 'n' || playAgain == 'N') {
-                exitFlag = true;
-            } else if (playAgain == 'm' || playAgain == 'M') {
-                returnToMenuFlag = true;
+            while (true) {
+                if (_kbhit()) {
+                    playAgain = _getch();
+                    if (playAgain == 'n' || playAgain == 'N') {
+                        exitFlag = true;
+                        break;
+                    } else if (playAgain == 'm' || playAgain == 'M') {
+                        returnToMenuFlag = true;
+                        break;
+                    } else if (playAgain == 27) { // ESC key
+                        exitFlag = true;
+                        break;
+                    } else if (playAgain == 'y' || playAgain == 'Y') {
+                        break;
+                    } else {
+                        setColor(12); // Red color for error message
+                        cout << "Invalid choice. Please enter y, n, m, or ESC: ";
+                        setColor(7); // Reset to default color
+                    }
+                }
             }
         }
     }
