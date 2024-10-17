@@ -15,7 +15,7 @@ bool exitFlag = false;
 bool returnToMenuFlag = false;
 
 // Function to set console text color without using windows.h
-void setColor(int color) {
+int setColor(int color) {
     if (color == 12) { // Red for X
         cout << "\033[31m";
     } else if (color == 9) { // Blue for O
@@ -29,10 +29,11 @@ void setColor(int color) {
     } else if (color == 14) { // Yellow for player prompt and draw message
         cout << "\033[33m";
     }
+    return 0;
 }
 
 // Function to display the Tic-Tac-Toe board
-void displayBoard(const vector<string>& board) {
+int displayBoard(const vector<string>& board) {
     for (int i = 0; i < 9; i += 3) {
         for (int j = 0; j < 3; ++j) {
             setColor(board[i + j] == "X" ? 12 : board[i + j] == "O" ? 9 : 7);
@@ -43,6 +44,7 @@ void displayBoard(const vector<string>& board) {
         cout << endl;
         if (i < 6) cout << "---------" << endl;
     }
+    return 0;
 }
 
 // Function to check if input is valid
@@ -81,10 +83,11 @@ bool isDraw(const vector<string>& board) {
 }
 
 // Function to reset the board
-void resetBoard(vector<string>& board) {
+int resetBoard(vector<string>& board) {
     for (int i = 0; i < 9; ++i) {
         board[i] = to_string(i + 1);
     }
+    return 0;
 }
 
 // Function to get player input
@@ -137,7 +140,7 @@ int getComputerInput(const vector<string>& board) {
 }
 
 // Function to play the game
-void playGame(bool isComputerOpponent) {
+int playGame(bool isComputerOpponent) {
     vector<string> board(9);
     resetBoard(board);
 
@@ -216,10 +219,11 @@ void playGame(bool isComputerOpponent) {
         setColor(7); // Reset to default color
         _getch(); // Wait for any key press
     }
+    return 0;
 }
 
 // Function to show the menu
-void showMenu() {
+int showMenu() {
     char choice;
     bool isComputerOpponent = false;
 
@@ -237,7 +241,7 @@ void showMenu() {
                 setColor(12); // Red color for exit message
                 cout << "ESC clicked. Exiting the game..." << endl;
                 setColor(7); // Reset to default color
-                return;
+                return 0;
             }
             if (ch == '1') {
                 isComputerOpponent = true;
@@ -250,7 +254,7 @@ void showMenu() {
                 setColor(11); // Cyan color for menu message
                 cout << "Menu clicked. Returning to menu..." << endl;
                 setColor(7); // Reset to default color
-                return;
+                return 0;
             } else {
                 setColor(12); // Red color for error message
                 cout << "Invalid choice. Please enter 1, 2, or M or esc: ";
@@ -277,6 +281,7 @@ void showMenu() {
             }
         }
     }
+    return 0;
 }
 
 int main() {
