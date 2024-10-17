@@ -5,6 +5,7 @@
 #include <conio.h>
 #include <cstdlib>
 #include <ctime>
+#include <memory>
 
 //https://gist.github.com/JBlond/2fea43a3049b38287e5e9cefc87b2124
 
@@ -141,8 +142,8 @@ int getComputerInput(const vector<string>& board) {
 
 // Function to play the game
 int playGame(bool isComputerOpponent) {
-    vector<string> board(9);
-    resetBoard(board);
+    auto board = make_unique<vector<string>>(9);
+    resetBoard(*board);
 
     setColor(10); // Green color for welcome message
     cout << "Welcome to Tic-Tac-Toe! Player 1 is X, Player 2 is O. Let's begin!" << endl;
@@ -150,7 +151,7 @@ int playGame(bool isComputerOpponent) {
     cout << "Press ESC at any time to exit the game." << endl;
     cout << "Press 'M' at any time to return to the menu." << endl;
     setColor(7); // Reset to default color
-    displayBoard(board);
+    displayBoard(*board);
 
     string currentPlayer = "X";
     while (!exitFlag && !returnToMenuFlag) {
@@ -165,23 +166,23 @@ int playGame(bool isComputerOpponent) {
             // Display available cells
             cout << "Available cells: ";
             for (int i = 0; i < 9; ++i) {
-                if (board[i] != "X" && board[i] != "O") {
-                    cout << board[i] << " ";
+                if ((*board)[i] != "X" && (*board)[i] != "O") {
+                    cout << (*board)[i] << " ";
                 }
             }
             cout << endl;
 
             if (currentPlayer == "O" && isComputerOpponent) {
-                pos = getComputerInput(board);
+                pos = getComputerInput(*board);
             } else {
-                pos = getPlayerInput(board);
+                pos = getPlayerInput(*board);
             }
 
             if (pos == -1) {
                 break;
             }
 
-            if (isCellTaken(board, pos)) {
+            if (isCellTaken(*board, pos)) {
                 setColor(12); // Red color for error message
                 cout << "Cell already taken. Please choose another position." << endl;
                 setColor(7); // Reset to default color
@@ -193,17 +194,17 @@ int playGame(bool isComputerOpponent) {
 
         if (exitFlag || returnToMenuFlag) break;
 
-        board[pos - 1] = currentPlayer;
-        displayBoard(board);
+        (*board)[pos - 1] = currentPlayer;
+        displayBoard(*board);
 
-        if (checkWin(board, currentPlayer)) {
+        if (checkWin(*board, currentPlayer)) {
             setColor(10); // Green color for win message
             cout << "Player " << (currentPlayer == "X" ? "1 (X)" : "2 (O)") << " wins!" << endl;
             setColor(7); // Reset to default color
             break;
         }
 
-        if (isDraw(board)) {
+        if (isDraw(*board)) {
             setColor(14); // Yellow color for draw message
             cout << "It's a draw!" << endl;
             setColor(7); // Reset to default color
