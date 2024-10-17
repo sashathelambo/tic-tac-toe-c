@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <memory>
-
+#include "validator.hpp"
 //https://gist.github.com/JBlond/2fea43a3049b38287e5e9cefc87b2124
 
 using namespace std;
@@ -52,16 +52,6 @@ void displayBoard() {
         cout << endl;
         if (i < 6) cout << "---------" << endl;
     }
-}
-
-// Function to check if input is valid
-bool isValidInput(const string& input) {
-    return input.length() == 1 && isdigit(input[0]) && stoi(input) >= 1 && stoi(input) <= 9;
-}
-
-// Function to check if a cell is already taken
-bool isCellTaken(int pos) {
-    return (*board)[pos - 1] == "X" || (*board)[pos - 1] == "O";
 }
 
 // Function to check if a player has won
@@ -117,7 +107,7 @@ int getPlayerInput() {
             }
             if (ch >= '1' && ch <= '9') {
                 int position = ch - '0';
-                if (!isCellTaken(position)) {
+                if (!Validator::isCellTaken(*board, position)) {
                     cout << ch << endl; // Echo the valid input
                     return position;
                 } else {
@@ -140,7 +130,7 @@ int getComputerInput() {
     int pos;
     do {
         pos = rand() % 9 + 1;
-    } while (isCellTaken(pos));
+    } while (Validator::isCellTaken(*board, pos));
     cout << pos << endl; // Echo the computer's move
     return pos;
 }
@@ -186,7 +176,7 @@ void playGame() {
                 break;
             }
 
-            if (isCellTaken(playerInput)) {
+            if (Validator::isCellTaken(*board, playerInput)) {
                 setColor(12); // Red color for error message
                 cout << "Cell already taken. Please choose another position." << endl;
                 setColor(7); // Reset to default color
