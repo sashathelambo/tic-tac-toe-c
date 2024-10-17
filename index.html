@@ -6,9 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retro Tic Tac Toe</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-      
-    </style>
 </head>
 
 <body>
@@ -36,7 +33,7 @@
         const messageElement = document.getElementById('message');
         const turnMessageElement = document.getElementById('turnMessage');
         const resetButton = document.getElementById('resetButton');
-        let board = ['', '', '', '', '', '', '', '', ''];
+        let board = Array(9).fill('');
         let currentPlayer = 'X';
         let gameActive = true;
 
@@ -59,38 +56,45 @@
                 return;
             }
 
-            board[clickedCellIndex] = currentPlayer;
-            clickedCell.classList.add(currentPlayer.toLowerCase());
-            clickedCell.textContent = currentPlayer;
-
+            updateBoard(clickedCell, clickedCellIndex);
             if (checkWin()) {
-                messageElement.textContent = `Player ${currentPlayer} wins!`;
-                messageElement.style.textAlign = 'center';
-                gameActive = false;
+                endGame(`Player ${currentPlayer} wins!`);
                 return;
             }
 
             if (board.every(cell => cell !== '')) {
-                messageElement.textContent = "It's a draw!";
-                messageElement.style.textAlign = 'center';
-                gameActive = false;
+                endGame("It's a draw!");
                 return;
             }
 
-            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-            turnMessageElement.textContent = `Player ${currentPlayer}'s turn`;
+            switchPlayer();
+        }
+
+        function updateBoard(cell, index) {
+            board[index] = currentPlayer;
+            cell.classList.add(currentPlayer.toLowerCase());
+            cell.textContent = currentPlayer;
         }
 
         function checkWin() {
             return winningConditions.some(condition => {
-                return condition.every(index => {
-                    return board[index] === currentPlayer;
-                });
+                return condition.every(index => board[index] === currentPlayer);
             });
         }
 
+        function endGame(message) {
+            messageElement.textContent = message;
+            messageElement.style.textAlign = 'center';
+            gameActive = false;
+        }
+
+        function switchPlayer() {
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            turnMessageElement.textContent = `Player ${currentPlayer}'s turn`;
+        }
+
         function resetBoard() {
-            board = ['', '', '', '', '', '', '', '', ''];
+            board.fill('');
             currentPlayer = 'X';
             gameActive = true;
             messageElement.textContent = '';
